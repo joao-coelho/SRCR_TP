@@ -25,10 +25,9 @@ utente( 4,pedro,20,'felgueiras' ).
 
 % Invariante Estrutural
 
-+utente( Valor,Nome,Idade,Morada ) :: ( solucoes( (Valor), utente(Valor,N,I,M), S),
-					                  comprimento( S,X ),
-					                  X == 1).
-
++utente( Valor,Nome,Idade,Morada ) :: ( solucoes( (Valor), utente(Valor,N,I,M), S ),
+					                  comprimento( S,N ),
+					                  N == 1).
 
 
 % ----------------------------------------------------------
@@ -42,9 +41,9 @@ cuidadoPrestado( 5, 'Ginecologia', 'Hospital', 'Braga').
 
 
 % Invariante Estrutural
-+cuidadoPrestado( V,D,I,C ) :: ( solucoes( (V), cuidadoPrestado(V,D,I,C), S),
-					           comprimento( S,X ),
-					           X == 1).
++cuidadoPrestado( V,D,I,C ) :: ( solucoes( (V), cuidadoPrestado(V,D,I,C), S ),
+					           comprimento( S,N ),
+					           N == 1).
 
 
 % ----------------------------------------------------------
