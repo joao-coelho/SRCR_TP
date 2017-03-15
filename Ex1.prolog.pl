@@ -78,12 +78,12 @@ atoMedico( '14-03-2017', 2, 3, 5 ).
 
 % Predicado solucoes: F, Q, S -> {V,F}
 
-solucoes(T,Q,S) :- Q, assert(tmp(F)), fail.
+solucoes(T,Q,S) :- Q, assert(tmp(T)), fail.
 solucoes(T,Q,S) :- construir(S, []).
 
 construir(S1, S2) :- retract(tmp(X)),
 					 !,
-					 construir(S, [X|S2]).
+					 construir(S1, [X|S2]).
 construir(S, S).
 
 
@@ -95,6 +95,7 @@ comprimento( [X|T], R ) :- comprimento(T,N),
 evolucao( F ) :- solucoes(I, +F::I, Li),
 			     assert(F),
 			     testar(Li).
+
 evolucao( F ) :- retract( F ),
 				 !,
 				 fail.
@@ -113,3 +114,27 @@ testar([I|Li]) :- I,
 involucao( F ) :- solucoes(I, -F::I, Li),
 			      retract(F),
 			      testar(Li).
+
+% ----------------------------------------------------------
+%  Identificação dos utentes com atos médicos na data apontada
+%  Extensão do predicado utentesPorData: Data, [Nome] -> {V, F}
+
+utentesPorData( Data, Nome) :-
+	atoMedico( Data, IdUt, IdServ, Custo ),
+	utente( IdUt, Nome, Idade, Morada ).
+
+%listarUtentesPorData( Data, S ) :-
+%	findall( Nome, utentesPorData( Data, Nome ), S ).
+
+listarUtentesPorData( Data, S ) :-
+	solucoes( Nome, utentesPorData( Data, Nome ), S ).
+
+
+% ----------------------------------------------------------
+%  Identificação dos utentes com atos médicos nos cuidados com a Descrição apontada
+%  Extensão do predicado utentesPorCuidado: Data -> {V, F}
+
+utentesPorCuidado( DescCuidado, Nome ) :-
+	cuidadoPrestado( IdServ, DescCuidado, Inst, Cidade ),
+	atoMedico( Data, IdUt, IdServ, Custo ),
+	utente( IdUt, Nome, Idade, Morada ).
