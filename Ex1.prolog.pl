@@ -112,23 +112,61 @@ involucao( F ) :- assert( F ),
 
 % ----------------------- ALÍNEA 2) ------------------------
 % ----------------------------------------------------------
-%  Identificação dos utentes com atos médicos na data apontada
-%  Extensão do predicado utentesPorData: Data, Utente -> {V, F}
+%  Identificação dos utentes por Nome
+%  Extensão do predicado utentesPorNome: Nome, [Utente] -> {V, F}
 
-utentesPorData( Data, (IdUt, Nome, Idade, Sexo, Morada)) :-
-	atoMedico( Data, IdUt, IdServ, Custo ),
-	utente( IdUt, Nome, Idade, Sexo, Morada ).
-
-%listarUtentesPorData( Data, S ) :-
-%	findall( Nome, utentesPorData( Data, Nome ), S ).
+utentesPorNome( Nome, S ) :-
+	solucoes( (IdUt, Nome, Idade, Sexo, Morada), utente(IdUt, Nome, Idade, Sexo, Morada), S ).
 
 % ----------------------------------------------------------
-%  Identificação dos utentes com atos médicos na data apontada
-%  Extensão do predicado listarUtentesPorData: Data, [Utente] -> {V, F}
+%  Identificação dos utentes por Idade
+%  Extensão do predicado utentesPorIdade: Idade, [Utente] -> {V, F}
 
-listarUtentesPorData( Data, S ) :-
-	solucoes( (IdUt, Nome, Idade, Sexo, Morada), utentesPorData( Data, (IdUt, Nome, Idade, Sexo, Morada) ), S ).
+utentesPorIdade( Idade, S ) :-
+	solucoes( (IdUt, Nome, Idade, Sexo, Morada), utente(IdUt, Nome, Idade, Sexo, Morada), S ).
 
+% ----------------------------------------------------------
+%  Identificação dos utentes por Morada
+%  Extensão do predicado utentesPorMorada: Morada, [Utente] -> {V, F}
+
+utentesPorMorada( Morada, S ) :-
+	solucoes( (IdUt, Nome, Idade, Sexo, Morada), utente(IdUt, Nome, Idade, Sexo, Morada), S ).
+
+% ----------------------------------------------------------
+%  Identificação dos utentes por Sexo
+%  Extensão do predicado utentesPorSexo: Sexo, [Utente] -> {V, F}
+
+utentesPorSexo( Sexo, S ) :-
+	solucoes( (IdUt, Nome, Idade, Sexo, Morada), utente(IdUt, Nome, Idade, Sexo, Morada), S ).
+
+
+
+% ---------------------- ALÍNEA 3) -------------------------
+% ----------------------------------------------------------
+%  Identificação das instituições prestadoras de cuidados de saúde;
+%  Extensão do predicado listarInstComCuidadosDeSaude: [Instituição] -> {V, F}
+
+listarInstComCuidadosDeSaude( S ) :-
+	solucoes( (Instituicao, Descricao), cuidadoPrestado( IdServ, Descricao, Instituicao, Cidade), S ).
+
+
+% 4ª ALINEA
+
+% ----------------------------------------------------------
+%  Identificação dos cuidados prestados por instituição
+%  Extensão do predicado cuidadosPorInstituicao: Instituicao, [DescCuidado] -> {V, F}
+
+cuidadosPorInstituicao( Instituicao, S ) :-
+	solucoes( (DescCuidado), cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ), S ).
+
+% ----------------------------------------------------------
+%  Identificação dos cuidados prestados por cidade
+%  Extensão do predicado cuidadosPorCidade: Cidade, [DescCuidado] -> {V, F}
+
+cuidadosPorCidade( Cidade, S ) :-
+	solucoes( (DescCuidado), cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ), S ).ade, Sexo, Morada ), S ).
+
+% 5ª ALINEA
 
 % ----------------------------------------------------------
 %  Identificação dos utentes com atos médicos no cuidado com a Descrição apontada
@@ -164,6 +202,25 @@ listarUtentesPorInstituicao( Instituicao, S ) :-
 	solucoes( (IdUt, Nome, Idade, Sexo, Morada), utentesPorInstituicao( Instituicao, (IdUt, Nome, Idade, Sexo, Morada) ), S ).
 
 % ----------------------------------------------------------
+%  Identificação dos utentes com atos médicos na data apontada
+%  Extensão do predicado utentesPorData: Data, Utente -> {V, F}
+
+utentesPorData( Data, (IdUt, Nome, Idade, Sexo, Morada)) :-
+	atoMedico( Data, IdUt, IdServ, Custo ),
+	utente( IdUt, Nome, Idade, Sexo, Morada ).
+
+%listarUtentesPorData( Data, S ) :-
+%	findall( Nome, utentesPorData( Data, Nome ), S ).
+
+% ----------------------------------------------------------
+%  Identificação dos utentes com atos médicos na data apontada
+%  Extensão do predicado listarUtentesPorData: Data, [Utente] -> {V, F}
+
+listarUtentesPorData( Data, S ) :-
+	solucoes( (IdUt, Nome, Idade, Sexo, Morada), utentesPorData( Data, (IdUt, Nome, Idade, Sexo, Morada) ), S ).
+
+
+% ----------------------------------------------------------
 %  Identificação dos utentes com idade de criança (<= 12) com atos médicos
 %  Extensão do predicado criancaComAtoMedico: Utente -> {V, F}
 
@@ -178,18 +235,6 @@ criancaComAtoMedico( IdUt, Nome, Idade, Sexo, Morada ) :-
 
 listarCriancasComAtoMedico( S ) :-
 	solucoes( (IdUt, Nome, Idade, Sexo, Morada), criancaComAtoMedico( IdUt, Nome, Idade, Sexo, Morada ), S ).
-
-
-
-
-% ---------------------- ALÍNEA 3) -------------------------
-% ----------------------------------------------------------
-%  Identificação das instituições prestadoras de cuidados de saúde;
-%  Extensão do predicado listarInstComCuidadosDeSaude: [Instituição] -> {V, F}
-
-listarInstComCuidadosDeSaude( S ) :-
-	solucoes( (Instituicao, Descricao), cuidadoPrestado( IdServ, Descricao, Instituicao, Cidade), S ).
-
 
 % ---------------------- ALÍNEA 6) -------------------------
 % ----------------------------------------------------------
