@@ -8,7 +8,7 @@
 :- set_prolog_flag( unknown,fail ).
 
 :- op( 900,xfy,'::' ).
-:- dynamic utente/4.
+:- dynamic utente/5.
 :- dynamic cuidadoPrestado/4.
 :- dynamic atoMedico/4.
 
@@ -22,7 +22,7 @@ utente( 4, luis, 20, masculino, 'vila das aves' ).
 utente( 5, pedro, 20, masculino, 'felgueiras' ).
 
 
-% Invariante Estrutural
+% Invariante Estrutural (Alínea 1) e 9))
 
 +utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), utente(IdUt,N,I,Se,M), S ),
 					                      comprimento( S,N ),
@@ -36,13 +36,14 @@ utente( 5, pedro, 20, masculino, 'felgueiras' ).
 %  Extensão do predicado cuidadoPrestado: IdServ, Descrição, Instituição, Cidade -> {V, F}
 
 cuidadoPrestado( 1, 'Medicina Familiar', 'Centro de Saude de Vila Verde', 'Vila Verde').
-cuidadoPrestado( 2, 'Radiologia', 'Hospital São João', 'Porto').
+cuidadoPrestado( 2, 'Radiologia', 'Hospital Sao Joao', 'Porto').
 cuidadoPrestado( 3, 'Medicina Familiar', 'Centro de Saude de Lousada', 'Lousada').
 cuidadoPrestado( 4, 'Medicina Familiar', 'Centro de Saude de Felgueiras', 'Felgueiras').
 cuidadoPrestado( 5, 'Ginecologia', 'Hospital de Braga', 'Braga').
+cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 
 
-% Invariante Estrutural
+% Invariante Estrutural (Alínea 1) e 9))
 
 +cuidadoPrestado( V,D,I,C ) :: ( solucoes( (V), cuidadoPrestado(V,D,I,C), S ),
 					           comprimento( S,N ),
@@ -60,7 +61,7 @@ atoMedico( '12-03-2017', 3, 2, 20 ).
 atoMedico( '13-03-2017', 4, 4, 5 ).
 atoMedico( '14-03-2017', 2, 3, 5 ).
 
-% Invariante Estrutural
+% Invariante Estrutural (Alínea 1) e 9))
 
 +atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt), utente( IdUt,Nome,Idade,Sexo,Morada ), S1 ),
 										comprimento( S1,N1 ), 
@@ -108,6 +109,8 @@ involucao( F ) :- assert( F ),
 				  !,
 				  fail.
 
+
+% ----------------------- ALÍNEA 2) ------------------------
 % ----------------------------------------------------------
 %  Identificação dos utentes com atos médicos na data apontada
 %  Extensão do predicado utentesPorData: Data, Utente -> {V, F}
@@ -175,3 +178,51 @@ criancaComAtoMedico( IdUt, Nome, Idade, Sexo, Morada ) :-
 
 listarCriancasComAtoMedico( S ) :-
 	solucoes( (IdUt, Nome, Idade, Sexo, Morada), criancaComAtoMedico( IdUt, Nome, Idade, Sexo, Morada ), S ).
+
+
+
+
+% ---------------------- ALÍNEA 3) -------------------------
+% ----------------------------------------------------------
+%  Identificação das instituições prestadoras de cuidados de saúde;
+%  Extensão do predicado listarInstComCuidadosDeSaude: [Instituição] -> {V, F}
+
+listarInstComCuidadosDeSaude( S ) :-
+	solucoes( (Instituicao, Descricao), cuidadoPrestado( IdServ, Descricao, Instituicao, Cidade), S ).
+
+
+% ---------------------- ALÍNEA 6) -------------------------
+% ----------------------------------------------------------
+% Identificar os atos médicos realizados, por utente/instituição/serviço;
+
+% Extensão do Predicado atoMedicoPorUtente: Ato Médico, Id Utente, Data, Instituição, Custo -> {V, F}
+atoMedicoPorUtente( AtoMedico, IdUt, Data, Instituicao, Custo ) :-
+	atoMedico( Data, IdUt, IdServ, Custo),
+	cuidadoPrestado( IdServ, AtoMedico, Instituicao, Cid ).
+
+% Extensão do Predicado listarAtoMedicoPorUtente: Id Utente, [Ato Médico] -> {V, F}
+listarAtoMedicoPorUtente( IdUt, S ) :-
+	solucoes( (AtoMedico, Data, Instituicao, Custo),
+	atoMedicoPorUtente( AtoMedico, IdUt, Data, Instituicao, Custo), S ).
+
+% Extensão do Predicado atoMedicoPorInstituicao: Ato Médico, Instituição, Id Utente, Nome, Data, Custo -> {V, F}
+atoMedicoPorInstituicao( AtoMedico, Instituicao, IdUt, Nome, Data, Custo ) :-
+	utente( IdUt, Nome, Idade, Sexo, Morada ),
+	cuidadoPrestado( IdServ, AtoMedico, Instituicao, Cidade ),
+	atoMedico( Data, IdUt, IdServ, Custo).
+
+% Extensão do Predicado listarAtoMedicoPorInst: Instituição, [Ato Médico] -> {V, F}
+listarAtoMedicoPorInst( Instituicao, S ) :-
+	solucoes( (AtoMedico, IdUt, Nome, Data, Custo), 
+	atoMedicoPorInstituicao(AtoMedico, Instituicao, IdUt, Nome, Data, Custo), S ).
+
+% Extensão do Predicado atoMedicoPorservico: Ato Médico, Instituição, Id Utente, Nome, Data, Custo -> {V, F}
+atoMedicoPorServico( AtoMedico, Instituicao, IdUt, Nome, Data, Custo ) :-
+	utente( IdUt, Nome, Idade, Sexo, Morada ),
+	cuidadoPrestado( IdServ, AtoMedico, Instituicao, Cidade ),
+	atoMedico( Data, IdUt, IdServ, Custo).
+
+% Extensão do Predicado listarAtoMedicoPorServ: Ato Médico, [Ato Médico] -> {V, F}
+listarAtoMedicoPorServ( AtoMedico, S ) :-
+	solucoes( (Instituicao, IdUt, Nome, Data, Custo), 
+	atoMedicoPorInstituicao(AtoMedico, Instituicao, IdUt, Nome, Data, Custo), S ).
