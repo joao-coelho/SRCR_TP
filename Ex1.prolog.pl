@@ -9,6 +9,8 @@
 
 :- op( 900,xfy,'::' ).
 :- dynamic utente/4.
+:- dynamic cuidadoPrestado/4.
+:- dynamic atoMedico/4.
 
 % ----------------------------------------------------------
 %  Extensão do predicado utente: IdUt, Nome, Idade, Morada -> {V, F}
@@ -25,10 +27,13 @@ utente( 4,pedro,20,'felgueiras' ).
 
 % Invariante Estrutural
 
-+utente( Valor,Nome,Idade,Morada ) :: ( solucoes( (Valor), utente(Valor,N,I,M), S ),
-					                  comprimento( S,N ),
-					                  N == 1).
++utente( IdUt,Nome,Idade,Morada ) :: ( solucoes( (IdUt), utente(IdUt,N,I,M), S ),
+					                 comprimento( S,N ),
+					                 N == 1 ).
 
+-utente( IdUt,Nome,Idade,Morada ) :: ( solucoes( (IdUt), atoMedico( Data,IdUt,IdServ,Custo ), S ),
+									 comprimento( S,N ),
+									 N == 0 ).
 
 % ----------------------------------------------------------
 %  Extensão do predicado cuidadoPrestado: IdServ, Descrição, Instituição, Cidade -> {V, F}
@@ -41,10 +46,14 @@ cuidadoPrestado( 5, 'Ginecologia', 'Hospital', 'Braga').
 
 
 % Invariante Estrutural
+
 +cuidadoPrestado( V,D,I,C ) :: ( solucoes( (V), cuidadoPrestado(V,D,I,C), S ),
 					           comprimento( S,N ),
 					           N == 1).
 
+-cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
+									        comprimento( S,N ),
+									        N == 0 ).
 
 % ----------------------------------------------------------
 %  Extensão do predicado atoMedico: Data, IdUt, IdServ, Custo -> {V, F}
@@ -53,6 +62,15 @@ atoMedico( '14-03-2017', 1, 5, 30 ).
 atoMedico( '12-03-2017', 3, 2, 20 ).
 atoMedico( '13-03-2017', 4, 4, 5 ).
 atoMedico( '14-03-2017', 2, 3, 5 ).
+
+% Invariante Estrutural
+
++atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt), utente( IdUt, Nome, Idade, Morada ), S1 ),
+										comprimento( S1,N1 ), 
+										N1 == 1,
+										solucoes( (IdServ), cuidadoPrestado( IdServ, Descricao, Instituicao, Cidade ), S2 ),
+										comprimento( S2,N2 ),
+										N2 == 1 ).
 
 
 % Extensao do predicado nome: Nome -> {V, F}
@@ -94,7 +112,6 @@ comprimento( [X|T], R ) :- comprimento(T,N),
 evolucao( F ) :- solucoes(I, +F::I, Li),
 			     assert(F),
 			     testar(Li).
-
 evolucao( F ) :- retract( F ),
 				 !,
 				 fail.
@@ -113,6 +130,9 @@ testar([I|Li]) :- I,
 involucao( F ) :- solucoes(I, -F::I, Li),
 			      retract(F),
 			      testar(Li).
+involucao( F ) :- assert( F ),
+				  !,
+				  fail.
 
 % ----------------------------------------------------------
 %  Identificação dos utentes com atos médicos na data apontada
