@@ -60,6 +60,7 @@ atoMedico( '14-03-2017', 1, 5, 30 ).
 atoMedico( '12-03-2017', 3, 2, 20 ).
 atoMedico( '13-03-2017', 4, 4, 5 ).
 atoMedico( '14-03-2017', 2, 3, 5 ).
+atoMedico( '04-04-2017', 1, 3, 7 ).
 
 % Invariante Estrutural (Alínea 1) e 9))
 
@@ -164,7 +165,7 @@ cuidadosPorInstituicao( Instituicao, S ) :-
 %  Extensão do predicado cuidadosPorCidade: Cidade, [DescCuidado] -> {V, F}
 
 cuidadosPorCidade( Cidade, S ) :-
-	solucoes( (DescCuidado), cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ), S ).ade, Sexo, Morada ), S ).
+	solucoes( (DescCuidado), cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ), S ).
 
 % 5ª ALINEA
 
@@ -271,3 +272,46 @@ atoMedicoPorServico( AtoMedico, Instituicao, IdUt, Nome, Data, Custo ) :-
 listarAtoMedicoPorServ( AtoMedico, S ) :-
 	solucoes( (Instituicao, IdUt, Nome, Data, Custo), 
 	atoMedicoPorInstituicao(AtoMedico, Instituicao, IdUt, Nome, Data, Custo), S ).
+
+% ---------------------- ALÍNEA 7) -------------------------
+% ----------------------------------------------------------
+
+% Determinação de todas as instituições a que um utente já recorreu
+% Extensão do Predicado instituicaoPorUtente: Utente, Instituicao -> {V, F}
+
+instituicaoPorUtente( IdUt, Instituicao ) :-
+	utente( IdUt, Nome, Idade, Sexo, Morada ),
+	atoMedico( Data, IdUt, IdServ, Custo),
+	cuidadoPrestado( IdServ, AtoMedico, Instituicao, Cidade ).
+
+listarInstituicoesPorUtente( IdUt, S ) :-
+	solucoes( (Instituicao), instituicaoPorUtente( IdUt, Instituicao ), S ).
+
+
+% ----------------------------------------------------------
+
+% Determinação de todas os serviços a que um utente já recorreu
+% Extensão do Predicado serviçoPorUtente: Utente, Servico -> {V, F}
+
+servicoPorUtente( IdUt, (IdServ, Servico, Instituicao) ) :-
+	utente( IdUt, Nome, Idade, Sexo, Morada ),
+	atoMedico( Data, IdUt, IdServ, Custo),
+	cuidadoPrestado( IdServ, Servico, Instituicao, Cidade ).
+
+listarServicosPorUtente( IdUt, S ) :-
+	solucoes( (IdServ, Servico, Instituicao), servicoPorUtente( IdUt, (IdServ, Servico, Instituicao) ), S ).
+
+
+% ---------------------- ALÍNEA 8) -------------------------
+% ----------------------------------------------------------
+
+% Cálculo do custo total dos atos médicos por utente/serviço/instituição/data
+% Extensão do Predicado totalPorUtente: AtosMedicos, Total -> {V, F}
+
+totalPorUtente( [ (AtoMedico, IdUt, Data, Instituicao, Custo) | T ], Total ) :-
+	Total is R + Custo,
+	totalPorUtente( T, R ).
+
+calculaTotal( IdUt, S, Total ) :-
+	listarAtoMedicoPorUtente( IdUt, S ),
+	totalPorUtente( S, Total ).
