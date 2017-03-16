@@ -73,24 +73,6 @@ atoMedico( '14-03-2017', 2, 3, 5 ).
 										N2 == 1 ).
 
 
-% Extensao do predicado nome: Nome -> {V, F}
-%nome( joao ).
-%nome( jose ).
-%nome( luis ).
-%nome( pedro ).
-
-% Extensao do predicado idade: Nome, Idade -> {V, F}
-%idade( joao, 20 ).
-%idade( jose, 20 ).
-%idade( luis, 20 ).
-%idade( pedro, 20 ).
-
-% Extensao do predicado morada: Nome, Morada -> {V, F}
-%morada( joao, 'vila verde' ).
-%morada( jose, 'lousada' ).
-%morada( luis, 'vila das aves' ).
-%morada( pedro, 'felgueiras' ).
-
 % --------------------- Predicados auxiliares ----------------------
 
 % Predicado solucoes: F, Q, S -> {V,F}
@@ -115,11 +97,6 @@ evolucao( F ) :- solucoes(I, +F::I, Li),
 evolucao( F ) :- retract( F ),
 				 !,
 				 fail.
-
-% inserir: F -> {V,F}
-%inserir( F ) :- assert(F).
-%inserir( F ) :- retract(F),
-%			    insucesso.    % insucesso == !, fail
 
 % testar: L -> {V,F}
 testar([]).
