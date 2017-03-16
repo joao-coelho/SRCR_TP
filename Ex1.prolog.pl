@@ -13,36 +13,33 @@
 :- dynamic atoMedico/4.
 
 % ----------------------------------------------------------
-%  Extensão do predicado utente: IdUt, Nome, Idade, Morada -> {V, F}
+%  Extensão do predicado utente: IdUt, Nome, Idade, Sexo, Morada -> {V, F}
 
-%utente( N, X, Y, Z ) :- nome( X ),
-%						idade( X, Y ),
-%						morada( X, Z ).
-
-utente( 1,joao,20,'vila verde' ).
-utente( 2,jose,20,'lousada' ).
-utente( 3,luis,20,'vila das aves' ).
-utente( 4,pedro,20,'felgueiras' ).
+utente( 1, joao, 20, masculino, 'vila verde' ).
+utente( 2, jose, 20, masculino, 'lousada' ).
+utente( 3, josefina, 34, feminino, 'aveiro' ).
+utente( 4, luis, 20, masculino, 'vila das aves' ).
+utente( 5, pedro, 20, masculino, 'felgueiras' ).
 
 
 % Invariante Estrutural
 
-+utente( IdUt,Nome,Idade,Morada ) :: ( solucoes( (IdUt), utente(IdUt,N,I,M), S ),
-					                 comprimento( S,N ),
-					                 N == 1 ).
++utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), utente(IdUt,N,I,Se,M), S ),
+					                      comprimento( S,N ),
+					                      N == 1 ).
 
--utente( IdUt,Nome,Idade,Morada ) :: ( solucoes( (IdUt), atoMedico( Data,IdUt,IdServ,Custo ), S ),
-									 comprimento( S,N ),
-									 N == 0 ).
+-utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), atoMedico( Data,IdUt,IdServ,Custo ), S ),
+									      comprimento( S,N ),
+									      N == 0 ).
 
 % ----------------------------------------------------------
 %  Extensão do predicado cuidadoPrestado: IdServ, Descrição, Instituição, Cidade -> {V, F}
 
-cuidadoPrestado( 1, 'Medicina Familiar', 'Centro de Saude', 'Vila Verde').
-cuidadoPrestado( 2, 'Radiologia', 'Hospital', 'Porto').
-cuidadoPrestado( 3, 'Medicina Familiar', 'Centro de Saude', 'Lousada').
-cuidadoPrestado( 4, 'Medicina Familiar', 'Centro de Saude', 'Felgueiras').
-cuidadoPrestado( 5, 'Ginecologia', 'Hospital', 'Braga').
+cuidadoPrestado( 1, 'Medicina Familiar', 'Centro de Saude de Vila Verde', 'Vila Verde').
+cuidadoPrestado( 2, 'Radiologia', 'Hospital São João', 'Porto').
+cuidadoPrestado( 3, 'Medicina Familiar', 'Centro de Saude de Lousada', 'Lousada').
+cuidadoPrestado( 4, 'Medicina Familiar', 'Centro de Saude de Felgueiras', 'Felgueiras').
+cuidadoPrestado( 5, 'Ginecologia', 'Hospital de Braga', 'Braga').
 
 
 % Invariante Estrutural
@@ -65,10 +62,10 @@ atoMedico( '14-03-2017', 2, 3, 5 ).
 
 % Invariante Estrutural
 
-+atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt), utente( IdUt, Nome, Idade, Morada ), S1 ),
++atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt), utente( IdUt,Nome,Idade,Sexo,Morada ), S1 ),
 										comprimento( S1,N1 ), 
 										N1 == 1,
-										solucoes( (IdServ), cuidadoPrestado( IdServ, Descricao, Instituicao, Cidade ), S2 ),
+										solucoes( (IdServ), cuidadoPrestado( IdServ,Descricao,Instituicao,Cidade ), S2 ),
 										comprimento( S2,N2 ),
 										N2 == 1 ).
 
