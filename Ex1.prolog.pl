@@ -45,10 +45,17 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 
 % Invariante Estrutural (Alínea 1) e 9))
 
-+cuidadoPrestado( V,D,I,C ) :: ( solucoes( (V), cuidadoPrestado(V,D,I,C), S ),
+% Garantia de unicidade nos Ids dos Serviços
++cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), cuidadoPrestado(IdServ,D,I,C), S ),
 					           comprimento( S,N ),
-					           N == 1).
+					           N == 1 ).
 
+% Apenas é possível a inserção de um Serviço numa certa instituição uma vez
++cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (Desc,Inst), cuidadoPrestado(V,Desc,Inst,C), S ),
+							   comprimento( S, N),
+							   N == 1 ).
+
+% Não é possível a remoção de Serviços se houver algum Ato Nédico marcado que o use
 -cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
 									        comprimento( S,N ),
 									        N == 0 ).
@@ -64,6 +71,8 @@ atoMedico( '04-04-2017', 1, 3, 7 ).
 
 % Invariante Estrutural (Alínea 1) e 9))
 
+% Apenas é possível inserir um atoMedico em que o IdUt esteja registado nos Utentes e
+% o IdServ esteja registado nos Cuidados Prestados
 +atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt), utente( IdUt,Nome,Idade,Sexo,Morada ), S1 ),
 										comprimento( S1,N1 ), 
 										N1 == 1,
@@ -308,10 +317,17 @@ listarServicosPorUtente( IdUt, S ) :-
 % Cálculo do custo total dos atos médicos por utente/serviço/instituição/data
 % Extensão do Predicado totalPorUtente: AtosMedicos, Total -> {V, F}
 
-totalPorUtente( [ (AtoMedico, IdUt, Data, Instituicao, Custo) | T ], Total ) :-
-	Total is R + Custo,
-	totalPorUtente( T, R ).
+custosPorUtente( IdUt ) :-
+	atoMedico( Data, IdUt, IdServ, Custo ).
 
-calculaTotal( IdUt, S, Total ) :-
+listarCustosPorUtente( IdUt, S ) :-
+	solucoes( (Custo), custosPorUtente( IdUt ), S ).
+
+totalPorUtente([], 0).
+totalPorUtente( [ Custo | T ], Total ) :-
+	totalPorUtente( T, R ),
+	Total is Custo + R.
+
+calculaTotal( IdUt, Total ) :-
 	listarAtoMedicoPorUtente( IdUt, S ),
 	totalPorUtente( S, Total ).
