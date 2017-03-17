@@ -473,3 +473,25 @@ utenteEmEspera( Orgao, IdUt, Nome, Idade, Sexo, Morada ) :-
 
 listaDeEspera( Orgao, S ) :-
 	solucoes( (IdUt, Nome, Idade, Sexo, Morada), utenteEmEspera( Orgao, IdUt, Nome, Idade, Sexo, Morada ), S ).
+
+% Extensão do predicado medicoPorCuidado: Descricao, IdMed, Nome -> {V, F}
+
+medicoPorCuidado( Descricao, IdMed, Nome ) :-
+	medico( IdMed, Nome, Idade, Sexo, IdServ ),
+	cuidadoPrestado( IdServ, Descricao, Inst, Cidade ).
+
+% Extensão do predicado listarMedicosPorCuidado( Descricao, [(IdMed, Nome)] -> {V, F}
+	
+listarMedicosPorCuidado( Descricao, S ) :-
+	solucoes( (IdMed, Nome), medicoPorCuidado( Descricao, IdMed, Nome ), S ).
+
+% Extensão do predicado medicoPorInstituicao: Instituicao, IdMed, Nome -> {V, F}
+
+medicoPorInstituicao( Instituicao, IdMed, Nome ) :-
+	medico( IdMed, Nome, Idade, Sexo, IdServ ),
+	cuidadoPrestado( IdServ, Descricao, Instituicao, Cidade ).
+
+% Extensão do predicado listarMedicosPorInstituicao: Instituicao, [(IdMed, Nome)] -> {V, F}
+
+listarMedicosPorInstituicao( Instituicao, S ) :-
+	solucoes( ( IdMed, Nome ), medicoPorInstituicao( Instituicao, IdMed, Nome ), S ).
