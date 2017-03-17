@@ -15,6 +15,7 @@
 :- dynamic enfermeiro/5.
 :- dynamic turno/3.
 :- dynamic destacamento/3.
+:- dynamic transplante/2.
 
 % ----------------------------------------------------------
 %  Extensão do predicado utente: IdUt, Nome, Idade, Sexo, Morada -> {V, F}
@@ -375,21 +376,54 @@ listarCustosPorData( Data, [X|T], Total ) :-
 % -------------------- PREDICADOS EXTRA -------------------------
 % ---------------------------------------------------------------
 
+% Invariante Estrutural
++medico( IdMed,Nome,Idade,Sexo,IdServ ) :: ( solucoes( (IdMed), medico(IdMed,N,I,Se,Servico), S ),
+					                      comprimento( S,N ),
+					                      N == 1 ).
+
+
 % Extensão do predicado medico: IdMed, Nome, Idade, Sexo, IdServ -> {V, F}
-medico( 1, 'António Lemos', 52, masculino, 3  ).
-medico( 2, 'Aníbal Mota', 59, masculino, 1 ).
+
+medico( 1, 'Antonio Lemos', 52, masculino, 3  ).
+medico( 2, 'Anibal Mota', 59, masculino, 1 ).
 medico( 3, 'Catarina Paiva', 35, feminino, 5 ).
-medico( 4, 'José Garcia', 39, masculino, 2 ).
+medico( 4, 'Jose Garcia', 39, masculino, 2 ).
 medico( 5, 'Carla Perez', 41, feminino, 6 ).
 
+
+% Invariante Estrutural
++enfermeiro( IdEnf,Nome,Idade,Sexo,Instituicao ) :: ( solucoes( (IdEnf), enfermeiro(IdEnf,N,I,Se,Inst), S ),
+					                      comprimento( S,N ),
+					                      N == 1 ).
+
+-enfermeiro( IdEnf,Nome,Idade,Sexo,Instituicao ) :: ( solucoes( (IdEnf), destacamento(Data,IdT,IdEnf), S ),
+					                      comprimento( S,N ),
+					                      N == 0 ).
+
+
 % Extensão do predicado enfermeiro: IdEnf, Nome, Idade, Sexo, Instituicao -> {V, F}
-enfermeiro(1, 'Cátia Vanessa', 32, feminino, 'Centro de Saude de Lousada').
+
+enfermeiro(1, 'Catia Vanessa', 32, feminino, 'Centro de Saude de Lousada').
 enfermeiro(2, 'Gabriela Soares', 26, feminino, 'Centro de Saude de Vila Verde').
 enfermeiro(3, 'Renato Ribeiro' , 37, masculino, 'Hospital de Braga').
 enfermeiro(4, 'Alexandra Cunha', 29, feminino, 'Hospital de Braga').
 enfermeiro(5, 'Jorge Ferreira', 44, masculino, 'Hospital Sao Joao').
 
+% Listar enfermeiros de uma dada Instituicao
+% Extensão do predicado listarEnfermeirosPorInstituicao: Instituicao, [enfermeiro] -> {V, F}
+
+listarEnfermeirosPorInstituicao( Instituicao, S ) :-
+	solucoes( (IdEnf, Nome, Idade, Sexo), enfermeiro( IdEnf, Nome, Idade, Sexo, Instituicao ), S ).
+
+
+% Invariante Estrutural
++turno( IdTurno,Horas,Instituicao ) :: ( solucoes( (IdTurno), turno(IdTurno,H,Inst), S ),
+					              comprimento( S,N ),
+					              N == 1 ).
+
+
 % Extensão do predicado turno: IdTurno, Horas, Instituicao -> {V, F}
+
 turno( 1, '19h-01h', 'Hospital de Braga' ).
 turno( 2, '07h-13h', 'Hospital de Braga' ).
 turno( 3, '13h-19h', 'Hospital de Braga' ).
@@ -398,6 +432,7 @@ turno( 5, '19h-01h', 'Centro de Saude de Vila Verde' ).
 
 % Enfermeiro(a) destacado(a) para o dado turno em determinada data
 % Extensão do predicado destacamento: Data, IdTurno, IdEnf -> {V, F}
+
 destacamento( '13-03-2017', 2, 4 ).
 destacamento( '19-03-2017', 1, 3 ).
 destacamento( '5-04-2017', 3, 4 ).
@@ -417,3 +452,24 @@ enfermeiroPorData( Data, IdEnf, Nome, IdTurno, Horas ) :-
 
 listarEnfermeirosPorData( Data, S ) :-
 	solucoes( (IdEnf, Nome, IdTurno, Horas), enfermeiroPorData( Data, IdEnf, Nome, IdTurno, Horas), S ).
+
+% Invariante Estrutural
++transplante( IdUt, Orgao ) :: ( solucoes( (IdUt, Orgao), transplante(IdUt, Orgao), S ),
+					     comprimento( S,N ),
+					     N == 1 ).
+
+
+% Extensão do predicado transplante: IdUt, Orgao -> {V, F}
+
+transplante( 3, 'Rim' ).
+transplante( 1, 'Figado' ).
+transplante( 2, 'Rim' ).
+
+% Extensão do predicado listaDeEspera: Orgao, [Utentes] -> {V, F}
+
+utenteEmEspera( Orgao, IdUt, Nome, Idade, Sexo, Morada ) :-
+	transplante( IdUt, Orgao ),
+	utente( IdUt, Nome, Idade, Sexo, Morada ).
+
+listaDeEspera( Orgao, S ) :-
+	solucoes( (IdUt, Nome, Idade, Sexo, Morada), utenteEmEspera( Orgao, IdUt, Nome, Idade, Sexo, Morada ), S ).
