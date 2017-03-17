@@ -319,17 +319,22 @@ listarServicosPorUtente( IdUt, S ) :-
 custosPorUtente( IdUt, Custo ) :-
 	atoMedico( Data, IdUt, IdServ, Custo ).
 
-listarCustosPorUtente( IdUt, S ) :-
-	solucoes( (Custo), custosPorUtente( IdUt, Custo ), S ).
+listarCustosPorUtente( IdUt, [X|T], Total ) :-
+	solucoes( (Custo), custosPorUtente( IdUt, Custo ), [X|T] ),
+	Total is X + somatorio( T, Total ).
 
-totalPorUtente( IdUt, [], 0 ).
-totalPorUtente( IdUt, [X|T], Total ) :-
+somatorio([], 0).
+somatorio([X | Y], R) :- somatorio(Y,Z),
+						 R is X+Z.
 
-totalPorUtente([], 0).
-totalPorUtente( [ Custo | T ], Total ) :-
-	totalPorUtente( T, R ),
-	Total is Custo + R.
+%totalPorUtente( IdUt, [], 0 ).
+%totalPorUtente( IdUt, [X|T], Total ) :-
 
-calculaTotal( IdUt, Total ) :-
-	listarAtoMedicoPorUtente( IdUt, S ),
-	totalPorUtente( S, Total ).
+%totalPorUtente([], 0).
+%totalPorUtente( [ Custo | T ], Total ) :-
+%	totalPorUtente( T, R ),
+%	Total is Custo + R.
+
+%calculaTotal( IdUt, Total ) :-
+%	listarAtoMedicoPorUtente( IdUt, S ),
+%	totalPorUtente( S, Total ).
