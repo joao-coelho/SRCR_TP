@@ -160,8 +160,7 @@ listarInstComCuidadosDeSaude( S ) :-
 	solucoes( (Instituicao, Descricao), cuidadoPrestado( IdServ, Descricao, Instituicao, Cidade), S ).
 
 
-% 4ª ALINEA
-
+% ---------------------- ALÍNEA 4) -------------------------
 % ----------------------------------------------------------
 %  Identificação dos cuidados prestados por instituição
 %  Extensão do predicado cuidadosPorInstituicao: Instituicao, [DescCuidado] -> {V, F}
@@ -176,8 +175,8 @@ cuidadosPorInstituicao( Instituicao, S ) :-
 cuidadosPorCidade( Cidade, S ) :-
 	solucoes( (DescCuidado), cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ), S ).
 
-% 5ª ALINEA
 
+% ---------------------- ALÍNEA 5) -------------------------
 % ----------------------------------------------------------
 %  Identificação dos utentes com atos médicos no cuidado com a Descrição apontada
 %  Extensão do predicado utentesPorCuidado: DescCuidado, Utente -> {V, F}
@@ -317,11 +316,14 @@ listarServicosPorUtente( IdUt, S ) :-
 % Cálculo do custo total dos atos médicos por utente/serviço/instituição/data
 % Extensão do Predicado totalPorUtente: AtosMedicos, Total -> {V, F}
 
-custosPorUtente( IdUt ) :-
+custosPorUtente( IdUt, Custo ) :-
 	atoMedico( Data, IdUt, IdServ, Custo ).
 
 listarCustosPorUtente( IdUt, S ) :-
-	solucoes( (Custo), custosPorUtente( IdUt ), S ).
+	solucoes( (Custo), custosPorUtente( IdUt, Custo ), S ).
+
+totalPorUtente( IdUt, [], 0 ).
+totalPorUtente( IdUt, [X|T], Total ) :-
 
 totalPorUtente([], 0).
 totalPorUtente( [ Custo | T ], Total ) :-
