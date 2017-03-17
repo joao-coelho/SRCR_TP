@@ -11,6 +11,10 @@
 :- dynamic utente/5.
 :- dynamic cuidadoPrestado/4.
 :- dynamic atoMedico/4.
+:- dynamic medico/5.
+:- dynamic enfermeiro/5.
+:- dynamic turno/3.
+:- dynamic destacamento/3.
 
 % ----------------------------------------------------------
 %  Extensão do predicado utente: IdUt, Nome, Idade, Sexo, Morada -> {V, F}
@@ -313,28 +317,103 @@ listarServicosPorUtente( IdUt, S ) :-
 % ---------------------- ALÍNEA 8) -------------------------
 % ----------------------------------------------------------
 
-% Cálculo do custo total dos atos médicos por utente/serviço/instituição/data
-% Extensão do Predicado totalPorUtente: AtosMedicos, Total -> {V, F}
+% predicado auxiliar
+somatorio([], 0).
+somatorio([X | Y], R) :- somatorio(Y,Z),
+						 R is X+Z.
+
+% Cálculo do custo total dos atos médicos por utente
+% Extensão do Predicado custosPorUtente: IdUt, Custo -> {V, F}
 
 custosPorUtente( IdUt, Custo ) :-
 	atoMedico( Data, IdUt, IdServ, Custo ).
 
 listarCustosPorUtente( IdUt, [X|T], Total ) :-
 	solucoes( (Custo), custosPorUtente( IdUt, Custo ), [X|T] ),
-	Total is X + somatorio( T, Total ).
+	somatorio( T, R ),
+	Total is X + R. 
 
-somatorio([], 0).
-somatorio([X | Y], R) :- somatorio(Y,Z),
-						 R is X+Z.
 
-%totalPorUtente( IdUt, [], 0 ).
-%totalPorUtente( IdUt, [X|T], Total ) :-
+% Cálculo do custo total dos atos médicos por serviço/instituição/data
+% Extensão do Predicado custosPorServico: IdServ, Custo -> {V, F}
 
-%totalPorUtente([], 0).
-%totalPorUtente( [ Custo | T ], Total ) :-
-%	totalPorUtente( T, R ),
-%	Total is Custo + R.
+custosPorServico( IdServ, Custo ) :-
+	atoMedico( Data, IdUt, IdServ, Custo ).
 
-%calculaTotal( IdUt, Total ) :-
-%	listarAtoMedicoPorUtente( IdUt, S ),
-%	totalPorUtente( S, Total ).
+listarCustosPorServico( IdServ, [X|T], Total ) :-
+	solucoes( (Custo), custosPorServico( IdServ, Custo ), [X|T] ),
+	somatorio( T, R ),
+	Total is X + R. 
+
+
+% Cálculo do custo total dos atos médicos por instituição/data
+% Extensão do Predicado custosPorInstituicao: Instituicao, Custo -> {V, F}
+
+custosPorInstituicao( Instituicao, Custo ) :-
+	atoMedico( Data, IdUt, IdServ, Custo ),
+	cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ).
+
+listarCustosPorInstituicao( Instituicao, [X|T], Total ) :-
+	solucoes( (Custo), custosPorInstituicao( Instituicao, Custo ), [X|T] ),
+	somatorio( T, R ),
+	Total is X + R. 
+
+
+% Cálculo do custo total dos atos médicos por data
+% Extensão do Predicado custosPorData: Data, Custo -> {V, F}
+
+custosPorData( Data, Custo ) :-
+	atoMedico( Data, IdUt, IdServ, Custo ).
+
+listarCustosPorData( Data, [X|T], Total ) :-
+	solucoes( (Custo), custosPorData( Data, Custo ), [X|T] ),
+	somatorio( T, R ),
+	Total is X + R. 
+
+
+
+% -------------------- PREDICADOS EXTRA -------------------------
+% ---------------------------------------------------------------
+
+% Extensão do predicado medico: IdMed, Nome, Idade, Sexo, IdServ -> {V, F}
+medico( 1, 'António Lemos', 52, masculino, 3  ).
+medico( 2, 'Aníbal Mota', 59, masculino, 1 ).
+medico( 3, 'Catarina Paiva', 35, feminino, 5 ).
+medico( 4, 'José Garcia', 39, masculino, 2 ).
+medico( 5, 'Carla Perez', 41, feminino, 6 ).
+
+% Extensão do predicado enfermeiro: IdEnf, Nome, Idade, Sexo, Instituicao -> {V, F}
+enfermeiro(1, 'Cátia Vanessa', 32, feminino, 'Centro de Saude de Lousada').
+enfermeiro(2, 'Gabriela Soares', 26, feminino, 'Centro de Saude de Vila Verde').
+enfermeiro(3, 'Renato Ribeiro' , 37, masculino, 'Hospital de Braga').
+enfermeiro(4, 'Alexandra Cunha', 29, feminino, 'Hospital de Braga').
+enfermeiro(5, 'Jorge Ferreira', 44, masculino, 'Hospital Sao Joao').
+
+% Extensão do predicado turno: IdTurno, Horas, Instituicao -> {V, F}
+turno( 1, '19h-01h', 'Hospital de Braga' ).
+turno( 2, '07h-13h', 'Hospital de Braga' ).
+turno( 3, '13h-19h', 'Hospital de Braga' ).
+turno( 4, '14h-19h', 'Hospital de Sao Joao' ).
+turno( 5, '19h-01h', 'Centro de Saude de Vila Verde' ).
+
+% Enfermeiro(a) destacado(a) para o dado turno em determinada data
+% Extensão do predicado destacamento: Data, IdTurno, IdEnf -> {V, F}
+destacamento( '13-03-2017', 2, 4 ).
+destacamento( '19-03-2017', 1, 3 ).
+destacamento( '5-04-2017', 3, 4 ).
+destacamento( '1-04-2017', 5, 2 ).
+destacamento( '19-02-2017', 4, 5 ).
+
+
+% Enfermeiros destacados num dado dia
+% Extensão do predicado enfermeiroPorData: Data, (IdEnf, Nome, IdTurno, Horas) -> {V, F}
+
+enfermeiroPorData( Data, IdEnf, Nome, IdTurno, Horas ) :-
+	destacamento( Data, IdTurno, IdEnf ),
+	turno( IdTurno, Horas, Instituicao ),
+	enfermeiro( IdEnf, Nome, Idade, Sexo, Instituicao ).
+
+% Extensão do predicado listarEnfermeirosPorData: Data, [(IdEnf, Nome, IdTurno, Horas)] -> {V, F}
+
+listarEnfermeirosPorData( Data, S ) :-
+	solucoes( (IdEnf, Nome, IdTurno, Horas), enfermeiroPorData( Data, IdEnf, Nome, IdTurno, Horas), S ).
