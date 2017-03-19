@@ -74,7 +74,8 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 
 atoMedico( '14-03-2017', 1, 5, 30 ).
 atoMedico( '12-03-2017', 3, 2, 20 ).
-atoMedico( '13-03-2017', 4, 4, 5 ).
+atoMedico( '13-12-2017', 4, 2, 10 ).
+atoMedico( '13-03-2017', 5, 4, 5 ).
 atoMedico( '14-03-2017', 2, 3, 5 ).
 atoMedico( '04-04-2017', 1, 3, 7 ).
 
@@ -227,8 +228,6 @@ utentesPorData( Data, (IdUt, Nome, Idade, Sexo, Morada)) :-
 	atoMedico( Data, IdUt, IdServ, Custo ),
 	utente( IdUt, Nome, Idade, Sexo, Morada ).
 
-%listarUtentesPorData( Data, S ) :-
-%	findall( Nome, utentesPorData( Data, Nome ), S ).
 
 % ----------------------------------------------------------
 %  Identificação dos utentes com atos médicos na data apontada
