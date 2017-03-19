@@ -259,36 +259,36 @@ listarCriancasComAtoMedico( S ) :-
 % Identificar os atos médicos realizados, por utente/instituição/serviço;
 
 % Extensão do Predicado atoMedicoPorUtente: Ato Médico, Id Utente, Data, Instituição, Custo -> {V, F}
-atoMedicoPorUtente( AtoMedico, IdUt, Data, Instituicao, Custo ) :-
+atoMedicoPorUtente( DescCuidado, IdUt, Data, Instituicao, Custo ) :-
 	atoMedico( Data, IdUt, IdServ, Custo),
-	cuidadoPrestado( IdServ, AtoMedico, Instituicao, Cid ).
+	cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cid ).
 
 % Extensão do Predicado listarAtoMedicoPorUtente: Id Utente, [Ato Médico] -> {V, F}
 listarAtoMedicoPorUtente( IdUt, S ) :-
-	solucoes( (AtoMedico, Data, Instituicao, Custo),
-	atoMedicoPorUtente( AtoMedico, IdUt, Data, Instituicao, Custo), S ).
+	solucoes( (DescCuidado, Data, Instituicao, Custo),
+	atoMedicoPorUtente( DescCuidado, IdUt, Data, Instituicao, Custo), S ).
 
 % Extensão do Predicado atoMedicoPorInstituicao: Ato Médico, Instituição, Id Utente, Nome, Data, Custo -> {V, F}
-atoMedicoPorInstituicao( AtoMedico, Instituicao, IdUt, Nome, Data, Custo ) :-
+atoMedicoPorInstituicao( DescCuidado, Instituicao, IdUt, Nome, Data, Custo ) :-
 	utente( IdUt, Nome, Idade, Sexo, Morada ),
-	cuidadoPrestado( IdServ, AtoMedico, Instituicao, Cidade ),
+	cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ),
 	atoMedico( Data, IdUt, IdServ, Custo).
 
 % Extensão do Predicado listarAtoMedicoPorInst: Instituição, [Ato Médico] -> {V, F}
 listarAtoMedicoPorInst( Instituicao, S ) :-
-	solucoes( (AtoMedico, IdUt, Nome, Data, Custo), 
-	atoMedicoPorInstituicao(AtoMedico, Instituicao, IdUt, Nome, Data, Custo), S ).
+	solucoes( (DescCuidado, IdUt, Nome, Data, Custo), 
+	atoMedicoPorInstituicao(DescCuidado, Instituicao, IdUt, Nome, Data, Custo), S ).
 
 % Extensão do Predicado atoMedicoPorservico: Ato Médico, Instituição, Id Utente, Nome, Data, Custo -> {V, F}
-atoMedicoPorServico( AtoMedico, Instituicao, IdUt, Nome, Data, Custo ) :-
+atoMedicoPorServico( DescCuidado, Instituicao, IdUt, Nome, Data, Custo ) :-
 	utente( IdUt, Nome, Idade, Sexo, Morada ),
-	cuidadoPrestado( IdServ, AtoMedico, Instituicao, Cidade ),
+	cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ),
 	atoMedico( Data, IdUt, IdServ, Custo).
 
 % Extensão do Predicado listarAtoMedicoPorServ: Ato Médico, [Ato Médico] -> {V, F}
-listarAtoMedicoPorServ( AtoMedico, S ) :-
+listarAtoMedicoPorServ( DescCuidado, S ) :-
 	solucoes( (Instituicao, IdUt, Nome, Data, Custo), 
-	atoMedicoPorInstituicao(AtoMedico, Instituicao, IdUt, Nome, Data, Custo), S ).
+	atoMedicoPorInstituicao(DescCuidado, Instituicao, IdUt, Nome, Data, Custo), S ).
 
 % ---------------------- ALÍNEA 7) -------------------------
 % ----------------------------------------------------------
@@ -299,7 +299,7 @@ listarAtoMedicoPorServ( AtoMedico, S ) :-
 instituicaoPorUtente( IdUt, Instituicao ) :-
 	utente( IdUt, Nome, Idade, Sexo, Morada ),
 	atoMedico( Data, IdUt, IdServ, Custo),
-	cuidadoPrestado( IdServ, AtoMedico, Instituicao, Cidade ).
+	cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ).
 
 listarInstituicoesPorUtente( IdUt, S ) :-
 	solucoes( (Instituicao), instituicaoPorUtente( IdUt, Instituicao ), S ).
@@ -310,13 +310,13 @@ listarInstituicoesPorUtente( IdUt, S ) :-
 % Determinação de todas os serviços a que um utente já recorreu
 % Extensão do Predicado serviçoPorUtente: Utente, Servico -> {V, F}
 
-servicoPorUtente( IdUt, (IdServ, Servico, Instituicao) ) :-
+servicoPorUtente( IdUt, (IdServ, DescCuidado, Instituicao) ) :-
 	utente( IdUt, Nome, Idade, Sexo, Morada ),
 	atoMedico( Data, IdUt, IdServ, Custo),
-	cuidadoPrestado( IdServ, Servico, Instituicao, Cidade ).
+	cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ).
 
 listarServicosPorUtente( IdUt, S ) :-
-	solucoes( (IdServ, Servico, Instituicao), servicoPorUtente( IdUt, (IdServ, Servico, Instituicao) ), S ).
+	solucoes( (IdServ, DescCuidado, Instituicao), servicoPorUtente( IdUt, (IdServ, DescCuidado, Instituicao) ), S ).
 
 
 % ---------------------- ALÍNEA 8) -------------------------
@@ -488,20 +488,20 @@ listaDeEspera( Orgao, S ) :-
 
 % Extensão do predicado medicoPorCuidado: Descricao, IdMed, Nome -> {V, F}
 
-medicoPorCuidado( Descricao, IdMed, Nome ) :-
+medicoPorCuidado( DescCuidado, IdMed, Nome ) :-
 	medico( IdMed, Nome, Idade, Sexo, IdServ ),
-	cuidadoPrestado( IdServ, Descricao, Inst, Cidade ).
+	cuidadoPrestado( IdServ, DescCuidado, Inst, Cidade ).
 
 % Extensão do predicado listarMedicosPorCuidado( Descricao, [(IdMed, Nome)] -> {V, F}
 	
-listarMedicosPorCuidado( Descricao, S ) :-
-	solucoes( (IdMed, Nome), medicoPorCuidado( Descricao, IdMed, Nome ), S ).
+listarMedicosPorCuidado( DescCuidado, S ) :-
+	solucoes( (IdMed, Nome), medicoPorCuidado( DescCuidado, IdMed, Nome ), S ).
 
 % Extensão do predicado medicoPorInstituicao: Instituicao, IdMed, Nome -> {V, F}
 
 medicoPorInstituicao( Instituicao, IdMed, Nome ) :-
 	medico( IdMed, Nome, Idade, Sexo, IdServ ),
-	cuidadoPrestado( IdServ, Descricao, Instituicao, Cidade ).
+	cuidadoPrestado( IdServ, DescCuidado, Instituicao, Cidade ).
 
 % Extensão do predicado listarMedicosPorInstituicao: Instituicao, [(IdMed, Nome)] -> {V, F}
 
