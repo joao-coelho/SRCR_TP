@@ -28,11 +28,13 @@ utente( 5, pedro, 20, masculino, 'felgueiras' ).
 
 
 % Invariante Estrutural (Alínea 1) e 9))
-
+% Garantia de unicidade nos Ids dos utentes
 +utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), utente(IdUt,N,I,Se,M), S ),
 					                      comprimento( S,N ),
 					                      N == 1 ).
 
+% Invariante Referencial
+% Não é possível a remoção de utentes se houver algum Ato Nédico para este
 -utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), atoMedico( Data,IdUt,IdServ,Custo ), S ),
 									      comprimento( S,N ),
 									      N == 0 ).
@@ -59,6 +61,8 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 +cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (Desc,Inst), cuidadoPrestado(V,Desc,Inst,C), S ),
 							   comprimento( S, N),
 							   N == 1 ).
+
+% Invariante Referencial
 
 % Não é possível a remoção de Serviços se houver algum Ato Nédico marcado que o use
 -cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
@@ -470,7 +474,7 @@ listarEnfermeirosPorData( Data, S ) :-
 % Extensão do predicado transplante: IdUt, Orgao -> {V, F}
 
 transplante( 3, 'Rim' ).
-transplante( 1, 'Piroca' ).
+transplante( 1, 'Figado' ).
 transplante( 2, 'Rim' ).
 
 % Extensão do predicado listaDeEspera: Orgao, [Utentes] -> {V, F}
