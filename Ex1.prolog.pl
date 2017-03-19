@@ -381,6 +381,14 @@ listarCustosPorData( Data, [X|T], Total ) :-
 					                      comprimento( S,N ),
 					                      N == 1 ).
 
++medico( IdMed,Nome,Idade,Sexo,IdServ ) :: ( solucoes( (IdServ), cuidadoPrestado( IdServ,Desc,Inst,Cid ) , S ),
+										   comprimento( S,N ),
+										   N == 1 ).
+
+-medico( IdMed,Nome,Idade,Sexo,IdServ ) :: ( solucoes( (IdServ), medico( Id,N,I,S,IdServ ) , S ),
+										   comprimento( S,N ),
+										   N >= 1 ).
+
 
 % Extensão do predicado medico: IdMed, Nome, Idade, Sexo, IdServ -> {V, F}
 
@@ -462,7 +470,7 @@ listarEnfermeirosPorData( Data, S ) :-
 % Extensão do predicado transplante: IdUt, Orgao -> {V, F}
 
 transplante( 3, 'Rim' ).
-transplante( 1, 'Figado' ).
+transplante( 1, 'Piroca' ).
 transplante( 2, 'Rim' ).
 
 % Extensão do predicado listaDeEspera: Orgao, [Utentes] -> {V, F}
