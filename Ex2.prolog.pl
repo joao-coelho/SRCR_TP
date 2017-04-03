@@ -26,8 +26,6 @@ utente( 3, josefina, 34, feminino, 'aveiro' ).
 utente( 4, luis, 20, masculino, 'vila das aves' ).
 utente( 5, pedro, 20, masculino, 'felgueiras' ).
 
-excecao( utente( 6,ze,34,masculino,'santa cona do assobio' ) ).
-
 
 % Invariante Estrutural (Alínea 1) e 9))
 % Garantia de unicidade nos Ids dos utentes
@@ -196,12 +194,36 @@ disjuncao( desconhecido,desconhecido,desconhecido ).
 
 % Inserção de Conhecimento Negativo
 
-%-cuidadoPrestado(  ).
-%-cuidadoPrestado(  ).
-%-cuidadoPrestado(  ).
+-cuidadoPrestado( Id,'Medicina Familiar','Hospital Sao Joao','Porto' ).
+-cuidadoPrestado( Id,'Obstetricia','Hospital do Algarve',Faro ).
+-cuidadoPrestado( Id,'Ginecologia','Centro de Saúde de Felgueiras','Felgueiras' ).
+
+% Inserção de conhecimento imperfeito Incerto
+
+utente( 6, manuel, inc0001, masculino, 'Lisboa' ).
+excecao( utente( Id,N,I,S,C ) ) :- utente( Id,N,inc0001,S,C ).
+
+atoMedico( inc0002,3,5,10 ).
+excecao( atoMedico( D,IdUt,IdServ,C ) ) :- atoMedico( inc0002,IdUt,IdServ,C ).
 
 
+% Inserção de conhecimento imperfeito Impreciso
+
+excecao( utente( 7,dolores,34,masculino,'Amadora' ) ).
+excecao( utente( 7,dolores,34,feminino,'Amadora' ) ).
 
 
+excecao( utente( 8,zeca,37,masculino,'Sintra' ) ).
+excecao( utente( 8,zeca,36,masculino,'Amadora' ) ).
 
+
+% Inserção de conhecimento imperfeito Interdito
+
+utente( 9,ana,20,feminino,int0001 ).
+excecao( utente( Id,N,I,S,C ) ) :-
+    utente( Id,N,I,S,int0001 ).
+nulo( int0001 ).
++utente( Id,N,I,S,C ) :: (solucoes( (N,Cidade),(utente(9,ana,20,feminino,Cidade),nao(nulo(Cidade))),S ),
+                         comprimento( S,N ),
+                         N == 0 ).
 
