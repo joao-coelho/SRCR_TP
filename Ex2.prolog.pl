@@ -288,3 +288,35 @@ excecao(utente( 8,'Alzira',24,feminino,'braga' )).
 
 % Comentar
 excecao(atoMedico('29-04-2017',2,3,C)) :- C>=3, C=<17.
+
+
+% Invariante que garante a não inserção de excepções repetidas
+
+% Conhecimento positivo
+
++(excecao(utente(Id,N,I,S,C))) :: (solucoes(excecao(utente(Id,N,I,S,C)),excecao(utente(Id,N,I,S,C)),S),
+                    comprimento(S,N),
+                    N < 2).
+
++(excecao(atoMedico(D,IdUt,IdServ,C))) :: (solucoes(excecao(atoMedico(D,IdUt,IdServ,C)), excecao(atoMedico(D,IdUt,IdServ,C)),S),
+                    comprimento(S,N),
+                    N < 2).
+
++(excecao(cuidadoPrestado(IdServ,D,I,C))) :: (solucoes(excecao(cuidadoPrestado(IdServ,D,I,C)),excecao(cuidadoPrestado(IdServ,D,I,C)),S),
+                    comprimento(S,N),
+                    N < 2).
+
+
+% Conhecimento negativo
+
++(excecao(-utente(Id,N,I,S,C))) :: (solucoes( excecao(utente(Id,N,I,S,C)),excecao(-utente(Id,N,I,S,C)),S),
+                    comprimento(S,N),
+                    N < 2).
+
++(excecao(-atoMedico(D,IdUt,IdServ,C))) :: (solucoes(excecao(atoMedico(D,IdUt,IdServ,C)), excecao(-atoMedico(D,IdUt,IdServ,C)),S),
+                    comprimento(S,N),
+                    N < 2).
+
++(excecao(-cuidadoPrestado(IdServ,D,I,C))) :: (solucoes( excecao(cuidadoPrestado(IdServ,D,I,C)),excecao(-cuidadoPrestado(IdServ,D,I,C)),S),
+                    comprimento(S,N),
+                    N < 2).
