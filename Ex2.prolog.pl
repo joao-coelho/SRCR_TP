@@ -9,6 +9,7 @@
 
 :- op( 900,xfy,'::' ).
 :- dynamic utente/5.
+:- dynamic '-'/1.
 :- dynamic cuidadoPrestado/4.
 :- dynamic atoMedico/4.
 :- dynamic medico/5.
@@ -29,15 +30,39 @@ utente( 5, pedro, 20, masculino, 'felgueiras' ).
 
 % Invariante Estrutural (Alínea 1) e 9))
 % Garantia de unicidade nos Ids dos utentes
-+utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), utente(IdUt,N,I,Se,M), S ),
-					                      comprimento( S,N ),
-					                      N == 1 ).
++utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), 
+                            (utente(IdUt,No,I,Se,M),-utente(IdUt,No,I,Se,M)), S ),
+                            comprimento( S,N ),
+                            N == 1 ).
+
+% Garante que não existe conhecimento negativo contraditório
++utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), 
+                            -utente(IdUt,Nome,Idade,Sexo,Morada), S ),
+                            comprimento( S,N ),
+                            N == 0 ).
+
+% Garante que não existe conhecimento positivo contraditótio
++(-utente( IdUt,Nome,Idade,Sexo,Morada )) :: ( solucoes( (IdUt), 
+                            utente(IdUt,Nome,Idade,Sexo,Morada), S ),
+                            comprimento( S,N ),
+                            N == 0 ).
 
 % Invariante Referencial
 % Não é possível a remoção de utentes se houver algum Ato Nédico para este
--utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), atoMedico( Data,IdUt,IdServ,Custo ), S ),
-									      comprimento( S,N ),
-									      N == 0 ).
+-utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), 
+                            atoMedico( Data,IdUt,IdServ,Custo ), S ),
+                            comprimento( S,N ),
+                            N == 0 ).
+
+% Garantia de unicidade nos Ids dos utentes
++(-utente( IdUt,Nome,Idade,Sexo,Morada )) :: ( solucoes( (IdUt), 
+                            (utente(IdUt,No,I,Se,M),-utente(IdUt,No,I,Se,M)), S ),
+                            comprimento( S,N ),
+                            N == 1 ).
+
+% Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
++excecao( utente(Id,N,I,S,M) ) :: nao( utente(Id,N,I,S,M) ).
+ 
 
 % ----------------------------------------------------------
 %  Extensão do predicado cuidadoPrestado: IdServ, Descrição, Instituição, Cidade -> {V, F}
@@ -54,23 +79,42 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 
 % Garantia de unicidade nos Ids dos Serviços
 +cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), cuidadoPrestado(IdServ,D,I,C), S ),
-					           comprimento( S,N ),
-					           N == 1 ).
+                            comprimento( S,N ),
+                            N == 1 ).
 
 % Apenas é possível a inserção de um Serviço numa certa instituição uma vez
 +cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (Desc,Inst), cuidadoPrestado(V,Desc,Inst,C), S ),
-							   comprimento( S, N),
-							   N == 1 ).
+                            comprimento( S, N),
+                            N == 1 ).
+
+% Garantir que não existe conhecimento negativo contraditótio
++cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), -cuidadoPrestado(IdServ,Desc,Inst,Cid), S ),
+                            comprimento( S, N ),
+                            N == 0 ).
+
+% Garantir que não existe conhecimento positivo contraditótio
++(-cuidadoPrestado( IdServ,Desc,Inst,Cid )) :: ( solucoes( (IdServ), cuidadoPrestado(IdServ,Desc,Inst,Cid), S ),
+                            comprimento( S, N ),
+                            N == 0 ).
+
+% Garantia de unicidade nos Ids dos Serviços
++(-cuidadoPrestado( IdServ,Desc,Inst,Cid )) :: ( solucoes( (IdServ), -cuidadoPrestado(IdServ,D,I,C), S ),
+                            comprimento( S,N ),
+                            N == 1 ).
+
+% Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
++excecao( cuidadoPrestado(Id,D,I,C) ) :: nao( cuidadoPrestado(Id,D,I,C) ).
 
 % Invariante Referencial
 
 % Não é possível a remoção de Serviços se houver algum Ato Nédico marcado que o use
 -cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
-									        comprimento( S,N ),
-									        N == 0 ).
+                            comprimento( S,N ),
+                            N == 0 ).
 
 % ----------------------------------------------------------
 %  Extensão do predicado atoMedico: Data, IdUt, IdServ, Custo -> {V, F}
+
 
 atoMedico( '14-03-2017', 1, 5, 30 ).
 atoMedico( '12-03-2017', 3, 2, 20 ).
@@ -84,11 +128,19 @@ atoMedico( '04-04-2017', 1, 3, 7 ).
 % Apenas é possível inserir um atoMedico em que o IdUt esteja registado nos Utentes e
 % o IdServ esteja registado nos Cuidados Prestados
 +atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt), utente( IdUt,Nome,Idade,Sexo,Morada ), S1 ),
-										comprimento( S1,N1 ), 
-										N1 == 1,
-										solucoes( (IdServ), cuidadoPrestado( IdServ,Descricao,Instituicao,Cidade ), S2 ),
-										comprimento( S2,N2 ),
-										N2 == 1 ).
+                    comprimento( S1,N1 ),  
+                    N1 == 1,
+                    solucoes( (IdServ), cuidadoPrestado( IdServ,Descricao,Instituicao,Cidade ), S2 ),
+                    comprimento( S2,N2 ),
+                    N2 == 1 ).
+
+% pressuposto mundo fechado
+-atoMedico(D,Id,IdS,C) :-
+    nao(atoMedico(D,Id,IdS,C)),
+    nao(excecao(atoMedico(D,Id,IdS,C))).
+
+% Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
++excecao( atoMedico(D,I,Is,C) ) :: nao( atoMedico(D,I,Is,C) ).
 
 
 % --------------------- Predicados auxiliares ----------------------
@@ -99,31 +151,36 @@ solucoes(T,Q,S) :- Q, assert(tmp(T)), fail.
 solucoes(T,Q,S) :- construir(S, []).
 
 construir(S1, S2) :- retract(tmp(X)),
-					 !,
-					 construir(S1, [X|S2]).
+    !,
+    construir(S1, [X|S2]).
 construir(S, S).
 
 
 comprimento( [], 0 ).
 comprimento( [X|T], R ) :- comprimento(T,N),
-						   R is N+1.
+               R is N+1.
 
 % evolucao: F -> {V,F,D}
-
+evolucao( F ) :- solucoes(I, +F::I, Li),
+                 assert(F),
+                 testar(Li).
+evolucao( F ) :- retract( F ),
+                 !,
+                 fail.
 
 % testar: L -> {V,F,D}
 testar([]).
 testar([I|Li]) :- I,
-				  testar(Li).
+    testar(Li).
 
 
 % involucao: F -> {V,F}
 involucao( F ) :- solucoes(I, -F::I, Li),
-			      retract(F),
-			      testar(Li).
+                  retract(F),
+                  testar(Li).
 involucao( F ) :- assert( F ),
-				  !,
-				  fail.
+          !,
+          fail.
 
 % Extensao do meta-predicado nao: Questao -> {V,F}
 
@@ -146,41 +203,54 @@ demo(Questao,desconhecido) :-
 
 demoLista( [],[] ).
 demoLista( [X|L],[R|S] ) :-
-	demo( X,R ),
-	demoLista( L,S ). 
+    demo( X,R ),
+    demoLista( L,S ). 
 
 
 demoConj( [],verdadeiro ).
-demoConj( [Q1|Q2],R ) :- demo( Q1,R1 ),
-					     demoConj( Q2,R2 ),
-					     conjuncao( R1,R2,R ).
 
-conjuncao( verdadeiro,verdadeiro,verdadeiro ).
-conjuncao( verdadeiro,falso,falso ).
-conjuncao( verdadeiro,desconhecido,desconhecido ).
-conjuncao( falso,falso,falso ).
-conjuncao( falso,verdadeiro,falso ).
-conjuncao( falso,desconhecido,falso ).
-conjuncao( desconhecido,verdadeiro,desconhecido ).
-conjuncao( desconhecido,falso,falso ).
-conjuncao( desconhecido,desconhecido,desconhecido ).
+demoConj( [X|Y], verdadeiro ) :-
+    demo( X, verdadeiro ),
+    demoConj( Y, verdadeiro ).
+
+demoConj( [X|Y], falso ) :-
+    demo( X, falso ),
+    demoConj( Y, Z ).
+
+demoConj( [X|Y], falso ) :-
+    demo( X, Z ),
+    demoConj(Y, falso).
+
+demoConj( [X|Y], desconhecido ) :-
+    demo( X, desconhecido ),
+    nao(demoConj( Y, falso )).
+
+demoConj( [X|Y], desconhecido ) :-
+    nao(demo( X, falso )),
+    demoConj( Y, desconhecido ).
 
 
 demoDisj( [],falso ).
-demoDisj( [Q1|Q2],R ) :- demo( Q1,R1 ),
-					     demoDisj( Q2,R2 ),
-					     disjuncao( R1,R2,R ).
 
-disjuncao( verdadeiro,verdadeiro,verdadeiro ).
-disjuncao( verdadeiro,falso,verdadeiro ).
-disjuncao( verdadeiro,desconhecido,verdadeiro ).
-disjuncao( falso,falso,falso ).
-disjuncao( falso,verdadeiro,verdadeiro ).
-disjuncao( falso,desconhecido,desconhecido ).
-disjuncao( desconhecido,verdadeiro,verdadeiro ).
-disjuncao( desconhecido,falso,desconhecido ).
-disjuncao( desconhecido,desconhecido,desconhecido ).
+demoDisj( [X|Y], falso ) :-
+    demo(X, falso ),
+    demoDisj(Y, falso ).
 
+demoDisj( [X|Y], verdadeiro ) :-
+    demo( X, verdaderiro ),
+    demoDisj( Y, Z ).
+
+demoDisj( [X|Y], verdadeiro ) :-
+    demo( X, Z ),
+    demoDisj( Y, verdadeiro ).
+
+demoDisj( [X|Y], desconhecido ) :-
+    demo( X, desconhecido ),
+    nao(demoDisj( Y, verdadeiro )).
+
+demoDisj( [X|Y], desconhecido ) :-
+    nao(demo( X, verdadeiro ),
+    demoDisj( Y, desconhecido )).
 
 % ----------------------------------------------------------------------
 % ----------------------- Trabalho de Grupo 2 --------------------------
@@ -188,14 +258,14 @@ disjuncao( desconhecido,desconhecido,desconhecido ).
 % Admissão do pressuposto do mundo fechado para o predicado utente
 
 -utente(Id,N,I,S,C) :- 
-	nao(utente(Id,N,I,S,C)),
-	nao(excecao(utente(Id,N,I,S,C))).
+    nao(utente(Id,N,I,S,C)),
+    nao(excecao(utente(Id,N,I,S,C))).
 
 
 % Inserção de Conhecimento Negativo
 
 -cuidadoPrestado( Id,'Medicina Familiar','Hospital Sao Joao','Porto' ).
--cuidadoPrestado( Id,'Obstetricia','Hospital do Algarve',Faro ).
+-cuidadoPrestado( Id,'Obstetricia','Hospital do Algarve','Faro' ).
 -cuidadoPrestado( Id,'Ginecologia','Centro de Saúde de Felgueiras','Felgueiras' ).
 
 % Inserção de conhecimento imperfeito Incerto
@@ -209,21 +279,17 @@ excecao( atoMedico( D,IdUt,IdServ,C ) ) :- atoMedico( inc0002,IdUt,IdServ,C ).
 
 % Inserção de conhecimento imperfeito Impreciso
 
-excecao( utente( 7,dolores,34,masculino,'Amadora' ) ).
-excecao( utente( 7,dolores,34,feminino,'Amadora' ) ).
+excecao(utente( 7,dolores,34,masculino,'Amadora' )).
+excecao(utente( 7,dolores,34,feminino,'Amadora' )).
 
+excecao(utente( 8,zeca,37,masculino,'Sintra' )).
+excecao(utente( 8,zeca,36,masculino,'Amadora' )).
 
-excecao( utente( 8,zeca,37,masculino,'Sintra' ) ).
-excecao( utente( 8,zeca,36,masculino,'Amadora' ) ).
+excecao(utente( 7,'Alfredo',22,masculino,'felgueiras' )).
+excecao(utente( 7,'Alfredo',22,masculino,'lousada' )).
 
+excecao(utente( 8,'Alzira',23,feminino,'braga' )).
+excecao(utente( 8,'Alzira',24,feminino,'braga' )).
 
-% Inserção de conhecimento imperfeito Interdito
-
-utente( 9,ana,20,feminino,int0001 ).
-excecao( utente( Id,N,I,S,C ) ) :-
-    utente( Id,N,I,S,int0001 ).
-nulo( int0001 ).
-+utente( Id,N,I,S,C ) :: (solucoes( (N,Cidade),(utente(9,ana,20,feminino,Cidade),nao(nulo(Cidade))),S ),
-                         comprimento( S,N ),
-                         N == 0 ).
-
+% Comentar
+excecao(atoMedico('29-04-2017',2,3,C)) :- C>=3, C=<17.
