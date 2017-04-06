@@ -71,7 +71,7 @@ utente( 5, pedro, 20, masculino, 'felgueiras' ).
                           N == 1).
 
 % Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
-+excecao( utente(Id,N,I,S,M) ) :: nao( utente(Id,N,I,S,M) ).
++excecao( utente(Id,N,I,S,M) ) :: nao( -utente(Id,N,I,S,M) ).
  
 
 % ----------------------------------------------------------
@@ -113,7 +113,7 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
                             N == 1 ).
 
 % Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
-+excecao( cuidadoPrestado(Id,D,I,C) ) :: nao( cuidadoPrestado(Id,D,I,C) ).
++excecao( cuidadoPrestado(Id,D,I,C) ) :: nao( -cuidadoPrestado(Id,D,I,C) ).
 
 % Invariante Referencial
 
@@ -150,7 +150,7 @@ atoMedico( '04-04-2017', 1, 3, 7 ).
     nao(excecao(atoMedico(D,Id,IdS,C))).
 
 % Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
-+excecao( atoMedico(D,I,Is,C) ) :: nao( atoMedico(D,I,Is,C) ).
++excecao( atoMedico(D,I,Is,C) ) :: nao( -atoMedico(D,I,Is,C) ).
 
 
 % --------------------- Predicados auxiliares ----------------------
@@ -246,51 +246,6 @@ demoLista( [X|L],[R|S] ) :-
     demo( X,R ),
     demoLista( L,S ). 
 
-
-demoConj( [],verdadeiro ).
-
-demoConj( [X|Y], verdadeiro ) :-
-    demo( X, verdadeiro ),
-    demoConj( Y, verdadeiro ).
-
-demoConj( [X|Y], falso ) :-
-    demo( X, falso ),
-    demoConj( Y, Z ).
-
-demoConj( [X|Y], falso ) :-
-    demo( X, Z ),
-    demoConj(Y, falso).
-
-demoConj( [X|Y], desconhecido ) :-
-    demo( X, desconhecido ),
-    nao(demoConj( Y, falso )).
-
-demoConj( [X|Y], desconhecido ) :-
-    nao(demo( X, falso )),
-    demoConj( Y, desconhecido ).
-
-
-demoDisj( [],falso ).
-
-demoDisj( [X|Y], falso ) :-
-    demo(X, falso ),
-    demoDisj(Y, falso ).
-
-demoDisj( [X|Y], verdadeiro ) :-
-    demo( X, verdaderiro ),
-    demoDisj( Y, Z ).
-
-demoDisj( [X|Y], verdadeiro ) :-
-    demo( X, Z ),
-    demoDisj( Y, verdadeiro ).
-
-demoDisj( [X|Y], desconhecido ) :-
-    demo( X, desconhecido ),
-    nao(demoDisj( Y, verdadeiro )).
-
-demoDisj( [X|Y], desconhecido ) :-
-    nao(demo( X, verdadeiro ),
-    demoDisj( Y, desconhecido )).
 
 % ----------------------------------------------------------------------
 % ----------------------- Trabalho de Grupo 2 --------------------------
