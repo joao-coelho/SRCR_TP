@@ -48,7 +48,7 @@ utente( 5, pedro, 20, masculino, 'felgueiras' ).
                             N == 0 ).
 
 % Invariante Referencial
-% Não é possível a remoção de utentes se houver algum Ato Nédico para este
+% Não é possível a remoção de utentes se houver algum Ato Médico para este
 -utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), 
                             atoMedico( Data,IdUt,IdServ,Custo ), S ),
                             comprimento( S,N ),
@@ -59,6 +59,16 @@ utente( 5, pedro, 20, masculino, 'felgueiras' ).
                             (utente(IdUt,No,I,Se,M),-utente(IdUt,No,I,Se,M)), S ),
                             comprimento( S,N ),
                             N == 1 ).
+
+% Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a morada de utentes
+
++utente( Id,N,I,S,C ) :: (solucoes( (Id,N,I,S,C), (utente( Id,N,I,S,xpto ), nulo(xpto)), S ),
+                          comprimento( S,N ),
+                          N == 1).
+
++(-utente( Id,N,I,S,C )) :: (solucoes( (Id,N,I,S,C), (utente( Id,N,I,S,xpto ), nulo(xpto)), S ),
+                          comprimento( S,N ),
+                          N == 1).
 
 % Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
 +excecao( utente(Id,N,I,S,M) ) :: nao( utente(Id,N,I,S,M) ).
@@ -197,6 +207,36 @@ demo(Questao, falso) :-
 demo(Questao,desconhecido) :-
     nao(Questao),
     nao(-Questao).
+
+% Extensao do meta-predicado myDemo: [Queries], Resposta -> {V, F, D} 
+myDemo( [], verdadeiro ).
+myDemo( [Q], Resposta ) :-
+    demo( Q, Resposta ).
+myDemo( [Q1, Op | T], Resposta ) :-
+    Op == e,
+    demo(Q1, V1),
+    myDemo(T, V2),
+    conjuncao(V1, V2, Resposta).
+myDemo( [Q1, Op | T], Resposta ) :-
+    Op == ou,
+    demo(Q1, V1),
+    myDemo(T, V2),
+    disjuncao(V1, V2, Resposta).
+
+
+conjuncao( verdadeiro,verdadeiro,verdadeiro ).
+conjuncao( verdadeiro,desconhecido,desconhecido ).
+conjuncao( desconhecido,verdadeiro,desconhecido ).
+conjuncao( desconhecido,desconhecido,desconhecido ).
+conjuncao( falso,_,falso ).
+conjuncao( _,falso,falso ).
+
+disjuncao( verdadeiro,_,verdadeiro ).
+disjuncao( _,verdadeiro,verdadeiro ).
+disjuncao( falso,falso,falso ).
+disjuncao( falso,desconhecido,desconhecido ).
+disjuncao( desconhecido,falso,desconhecido ).
+disjuncao( desconhecido,desconhecido,desconhecido ).
 
 
 % Extensao do meta-predicado demoLista: [Questao],[Resposta] -> {V,F,D}
