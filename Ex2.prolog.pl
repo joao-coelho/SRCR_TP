@@ -17,6 +17,7 @@
 :- dynamic turno/3.
 :- dynamic destacamento/3.
 :- dynamic transplante/2.
+:- dynamic excecao/1.
 
 % ----------------------------------------------------------
 %  Extensão do predicado utente: IdUt, Nome, Idade, Sexo, Morada -> {V, F}
@@ -30,8 +31,7 @@ utente( 5, pedro, 20, masculino, 'felgueiras' ).
 
 % Invariante Estrutural (Alínea 1) e 9))
 % Garantia de unicidade nos Ids dos utentes
-+utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), 
-                            (utente(IdUt,No,I,Se,M),-utente(IdUt,No,I,Se,M)), S ),
++utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), utente(IdUt,No,I,Se,M), S ),
                             comprimento( S,N ),
                             N == 1 ).
 
@@ -41,11 +41,17 @@ utente( 5, pedro, 20, masculino, 'felgueiras' ).
                             comprimento( S,N ),
                             N == 0 ).
 
+% Garantia de unicidade nos Ids dos utentes
+%+(-utente( IdUt,Nome,Idade,Sexo,Morada )) :: ( solucoes( (IdUt), -utente(IdUt,No,I,Se,M), S ),
+%                                             comprimento( S,N ),
+%                                             N == 1 ).
+
 % Garante que não existe conhecimento positivo contraditótio
-+(-utente( IdUt,Nome,Idade,Sexo,Morada )) :: ( solucoes( (IdUt), 
-                            utente(IdUt,Nome,Idade,Sexo,Morada), S ),
++(-utente( IdUt,Nome,Idade,Sexo,Morada )) :: ( solucoes( (IdUt), utente(IdUt,Nome,Idade,Sexo,Morada), S ),
                             comprimento( S,N ),
                             N == 0 ).
+
+
 
 % Invariante Referencial
 % Não é possível a remoção de utentes se houver algum Ato Médico para este
@@ -54,24 +60,19 @@ utente( 5, pedro, 20, masculino, 'felgueiras' ).
                             comprimento( S,N ),
                             N == 0 ).
 
-% Garantia de unicidade nos Ids dos utentes
-+(-utente( IdUt,Nome,Idade,Sexo,Morada )) :: ( solucoes( (IdUt), 
-                            (utente(IdUt,No,I,Se,M),-utente(IdUt,No,I,Se,M)), S ),
-                            comprimento( S,N ),
-                            N == 1 ).
-
 % Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a morada de utentes
+% Foi o Coelho que fez, não percebo piço........  PS: Não funfa
 
-+utente( Id,N,I,S,C ) :: (solucoes( (Id,N,I,S,C), (utente( Id,N,I,S,xpto ), nulo(xpto)), S ),
-                          comprimento( S,N ),
-                          N == 1).
+%+utente( Id,N,I,S,C ) :: (solucoes( (Id,N,I,S,C), (utente( Id,N,I,S,xpto ), nulo(xpto)), S ),
+%                          comprimento( S,N ),
+%                          N == 1).
 
-+(-utente( Id,N,I,S,C )) :: (solucoes( (Id,N,I,S,C), (utente( Id,N,I,S,xpto ), nulo(xpto)), S ),
-                          comprimento( S,N ),
-                          N == 1).
+%+(-utente( Id,N,I,S,C )) :: (solucoes( (Id,N,I,S,C), (utente( Id,N,I,S,xpto ), nulo(xpto)), S ),
+%                          comprimento( S,N ),
+%                          N == 1).
 
-% Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
-+excecao( utente(Id,N,I,S,M) ) :: nao( -utente(Id,N,I,S,M) ).
+% Garantir que não se adicionam exceções a conhecimento perfeito positivo
+%+excecao( utente(Id,N,I,S,M) ) :: ( nao( utente(Id,N,I,S,M) ) ).
  
 
 % ----------------------------------------------------------
