@@ -87,6 +87,14 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
                                     comprimento(S,N),
                                     N < 2).
 
+% Invariante de remoção que garante que não temos conhecimento Impreciso relativo à cidade do utente com menos de duas exceções
+-(excecao(utente( Id,No,I,Se,C ))) :: ( ( solucoes( excecao(utente(Id,No,I,Se,Cidade)), excecao(utente( Id,No,I,Se,Cidade )), S ),
+                                          comprimento( S,N ),
+                                          N >= 2 );
+                                        ( solucoes( ( Id ), utente( Id,No,I,Se,Cidade ), S ),
+                                          comprimento( S,N ),
+                                          N == 1 ) 
+                                      ).
 
 % ----------------------------------------------------------
 %  Extensão do predicado cuidadoPrestado: IdServ, Descrição, Instituição, Cidade -> {V, F}
