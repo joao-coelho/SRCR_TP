@@ -170,8 +170,18 @@ atoMedico( '04-04-2017', 1, 3, 7 ).
                     comprimento( S2,N2 ),
                     N2 == 1 ).
 
+% Garantir que não existe conhecimento negativo contraditótio
++atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt,IdServ), -atoMedico( Data,IdUt,IdServ,Custo ), S ),
+                                        comprimento( S, N ),
+                                        N == 0 ).
+
+% Garantir que não existe conhecimento negativo contraditótio
++(-atoMedico( Data,IdUt,IdServ,Custo ) ) :: ( solucoes( (IdUt,IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
+                                            comprimento( S, N ),
+                                            N == 0 ).
+
 % Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
-+excecao( atoMedico(D,I,Is,C) ) :: nao( -atoMedico(D,I,Is,C) ).
++excecao( atoMedico( D,I,Is,C ) ) :: nao( atoMedico( D,I,Is,C ) ).
 
 
 % -------------------- PREDICADOS AUXILIARES EXERCICIO 2 --------------------------
