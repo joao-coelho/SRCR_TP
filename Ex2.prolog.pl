@@ -70,23 +70,22 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
                             N == 0 ).
 
 % Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a morada de utentes
-% Foi o Coelho que fez, não percebo piço........  PS: Não funfa
 
-%+utente( Id,N,I,S,C ) :: (solucoes( (Id,N,I,S,C), (utente( Id,N,I,S,xpto ), nulo(xpto)), S ),
-%                          comprimento( S,N ),
-%                          N == 1).
++utente( Id,No,I,Se,C ) :: (solucoes( (Id,No,I,Se,C), (utente( Id,No,I,Se,xpto ), nulo(xpto)), S ),
+                           comprimento( S,N ),
+                           N == 1).
 
-%+(-utente( Id,N,I,S,C )) :: (solucoes( (Id,N,I,S,C), (utente( Id,N,I,S,xpto ), nulo(xpto)), S ),
-%                          comprimento( S,N ),
-%                          N == 1).
++(-utente( Id,No,I,Se,C )) :: (solucoes( (Id,No,I,Se,C), (utente( Id,No,I,Se,xpto ), nulo(xpto)), S ),
+                              comprimento( S,N ),
+                              N == 1).
 
 % Garantir que não se adicionam exceções a conhecimento perfeito positivo.
-%+excecao( utente(Id,N,I,S,M) ) :: ( nao( utente( Id,N,I,S,M ) ) ).
++excecao( utente(Id,No,I,Se,M) ) :: ( nao( utente( Id,No,I,Se,M ) ) ).
  
 % Garantia da não inserção de exceções repetidas.
-%+(excecao(utente(Id,N,I,S,C))) :: ( solucoes( excecao( (utente(Id,N,I,S,C))), excecao(utente(Id,N,I,S,C)), S),
-%                                  comprimento(S,N),
-%                                  N < 2).
++(excecao(utente(Id,No,I,Se,C))) :: ( solucoes( excecao( (utente(Id,No,I,Se,C))), excecao(utente(Id,No,I,Se,C)), S),
+                                    comprimento(S,N),
+                                    N < 2).
 
 
 % ----------------------------------------------------------
