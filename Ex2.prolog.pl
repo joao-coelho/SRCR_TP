@@ -80,9 +80,14 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
 %                          comprimento( S,N ),
 %                          N == 1).
 
-% Garantir que não se adicionam exceções a conhecimento perfeito positivo
+% Garantir que não se adicionam exceções a conhecimento perfeito positivo.
 %+excecao( utente(Id,N,I,S,M) ) :: ( nao( utente( Id,N,I,S,M ) ) ).
  
+% Garantia da não inserção de exceções repetidas.
++(excecao(utente(Id,N,I,S,C))) :: ( solucoes( excecao( (utente(Id,N,I,S,C))), excecao(utente(Id,N,I,S,C)), S),
+                                  comprimento(S,N),
+                                  N < 2).
+
 
 % ----------------------------------------------------------
 %  Extensão do predicado cuidadoPrestado: IdServ, Descrição, Instituição, Cidade -> {V, F}
@@ -130,6 +135,13 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 
 % Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
 +excecao( cuidadoPrestado(Id,D,I,C) ) :: ( nao( cuidadoPrestado( Id,D,I,C ) ) ).
+
+
+% Garantia da não inserção de exceções repetidas.
++(excecao(cuidadoPrestado(IdServ,D,I,C))) :: (solucoes(excecao(cuidadoPrestado(IdServ,D,I,C)),excecao(cuidadoPrestado(IdServ,D,I,C)),S),
+                    comprimento(S,N),
+                    N < 2).
+
 
 % Invariante Referencial
 
@@ -182,6 +194,13 @@ atoMedico( '04-04-2017', 1, 3, 7 ).
 
 % Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
 +excecao( atoMedico( D,I,Is,C ) ) :: nao( atoMedico( D,I,Is,C ) ).
+
+
+% Garantia da não inserção de exceções repetidas.
++(excecao(atoMedico(D,IdUt,IdServ,C))) :: (solucoes(excecao(atoMedico(D,IdUt,IdServ,C)), excecao(atoMedico(D,IdUt,IdServ,C)),S),
+                    comprimento(S,N),
+                    N < 2).
+
 
 
 % -------------------- PREDICADOS AUXILIARES EXERCICIO 2 --------------------------
@@ -346,32 +365,3 @@ nulo( int0002 ).
 
 
 % ----------------------------------------------------------------------
-
-% Invariante que garante a não inserção de excepções repetidas
-
-+(excecao(utente(Id,N,I,S,C))) :: (solucoes(excecao(utente(Id,N,I,S,C)),excecao(utente(Id,N,I,S,C)),S),
-                    comprimento(S,N),
-                    N < 2).
-
-+(excecao(atoMedico(D,IdUt,IdServ,C))) :: (solucoes(excecao(atoMedico(D,IdUt,IdServ,C)), excecao(atoMedico(D,IdUt,IdServ,C)),S),
-                    comprimento(S,N),
-                    N < 2).
-
-+(excecao(cuidadoPrestado(IdServ,D,I,C))) :: (solucoes(excecao(cuidadoPrestado(IdServ,D,I,C)),excecao(cuidadoPrestado(IdServ,D,I,C)),S),
-                    comprimento(S,N),
-                    N < 2).
-
-
-% Conhecimento negativo
-
-+(excecao(-utente(Id,N,I,S,C))) :: (solucoes( excecao(utente(Id,N,I,S,C)),excecao(-utente(Id,N,I,S,C)),S),
-                    comprimento(S,N),
-                    N < 2).
-
-+(excecao(-atoMedico(D,IdUt,IdServ,C))) :: (solucoes(excecao(atoMedico(D,IdUt,IdServ,C)), excecao(-atoMedico(D,IdUt,IdServ,C)),S),
-                    comprimento(S,N),
-                    N < 2).
-
-+(excecao(-cuidadoPrestado(IdServ,D,I,C))) :: (solucoes( excecao(cuidadoPrestado(IdServ,D,I,C)),excecao(-cuidadoPrestado(IdServ,D,I,C)),S),
-                    comprimento(S,N),
-                    N < 2).
