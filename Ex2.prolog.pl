@@ -84,9 +84,9 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
 %+excecao( utente(Id,N,I,S,M) ) :: ( nao( utente( Id,N,I,S,M ) ) ).
  
 % Garantia da não inserção de exceções repetidas.
-+(excecao(utente(Id,N,I,S,C))) :: ( solucoes( excecao( (utente(Id,N,I,S,C))), excecao(utente(Id,N,I,S,C)), S),
-                                  comprimento(S,N),
-                                  N < 2).
+%+(excecao(utente(Id,N,I,S,C))) :: ( solucoes( excecao( (utente(Id,N,I,S,C))), excecao(utente(Id,N,I,S,C)), S),
+%                                  comprimento(S,N),
+%                                  N < 2).
 
 
 % ----------------------------------------------------------
