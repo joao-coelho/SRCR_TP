@@ -73,11 +73,11 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
 
 +utente( Id,No,I,Se,C ) :: (solucoes( (Id,No,I,Se,C), (utente( Id,No,I,Se,xpto ), nulo(xpto)), S ),
                            comprimento( S,N ),
-                           N == 1).
+                           N == 0).
 
 +(-utente( Id,No,I,Se,C )) :: (solucoes( (Id,No,I,Se,C), (utente( Id,No,I,Se,xpto ), nulo(xpto)), S ),
                               comprimento( S,N ),
-                              N == 1).
+                              N == 0).
 
 % Garantir que não se adicionam exceções a conhecimento perfeito positivo.
 +excecao( utente(Id,No,I,Se,M) ) :: ( nao( utente( Id,No,I,Se,M ) ) ).
