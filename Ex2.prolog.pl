@@ -71,7 +71,7 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
 +excecao( utente(Id,No,I,Se,M) ) :: ( nao( utente( Id,No,I,Se,M ) ) ).
  
 % Garantia da não inserção de exceções repetidas.
-+(excecao(utente(Id,No,I,Se,C))) :: ( solucoes( excecao( (utente(Id,No,I,Se,C))), excecao(utente(Id,No,I,Se,C)), S),
++(excecao(utente(Id,No,I,Se,C))) :: ( solucoes( (excecao(utente(Id,No,I,Se,C))), excecao(utente(Id,No,I,Se,C)), S),
                                     comprimento(S,N),
                                     N < 2).
 
@@ -133,9 +133,9 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 
 
 % Garantia da não inserção de exceções repetidas.
-+(excecao(cuidadoPrestado(IdServ,D,I,C))) :: (solucoes(excecao(cuidadoPrestado(IdServ,D,I,C)),excecao(cuidadoPrestado(IdServ,D,I,C)),S),
-                    comprimento(S,N),
-                    N < 2).
++(excecao(cuidadoPrestado(IdServ,D,I,C))) :: ( solucoes( (excecao(cuidadoPrestado(IdServ,D,I,C))), excecao(cuidadoPrestado(IdServ,D,I,C)), S ),
+                                             comprimento( S,N ),
+                                             N == 0 ).
 
 
 % Invariante Referencial
@@ -192,7 +192,7 @@ atoMedico( '04-04-2017', 1, 3, 7 ).
 
 
 % Garantia da não inserção de exceções repetidas.
-+(excecao(atoMedico(D,IdUt,IdServ,C))) :: (solucoes(excecao(atoMedico(D,IdUt,IdServ,C)), excecao(atoMedico(D,IdUt,IdServ,C)),S),
++(excecao(atoMedico(D,IdUt,IdServ,C))) :: ( solucoes( (excecao(atoMedico(D,IdUt,IdServ,C))), excecao(atoMedico(D,IdUt,IdServ,C)),S),
                     comprimento(S,N),
                     N < 2).
 
@@ -241,6 +241,53 @@ disjuncao( desconhecido, desconhecido, desconhecido ).
 demoLista( [],[] ).
 demoLista( [X|L],[R|S] ) :- demo( X,R ),
                             demoLista( L,S ). 
+
+% Extensao do meta-predicado demoConj: [Questao], Resposta -> {V,F,D}
+
+demoConj( [],verdadeiro ).
+demoConj( [X|Y], verdadeiro ) :-
+    demo( X, verdadeiro ),
+    demoConj( Y, verdadeiro ).
+
+demoConj( [X|Y], falso ) :-
+    demo( X, falso ),
+    demoConj( Y, Z ).
+
+demoConj( [X|Y], falso ) :-
+    demo( X, Z ),
+    demoConj(Y, falso).
+
+demoConj( [X|Y], desconhecido ) :-
+    demo( X, desconhecido ),
+    nao(demoConj( Y, falso )).
+
+demoConj( [X|Y], desconhecido ) :-
+    nao(demo( X, falso )),
+    demoConj( Y, desconhecido ).
+
+% Extensao do meta-predicado demoDisj: [Questao], Resposta -> {V,F,D}
+
+demoDisj( [],falso ).
+demoDisj( [X|Y], falso ) :-
+    demo(X, falso ),
+    demoDisj(Y, falso ).
+ 
+demoDisj( [X|Y], verdadeiro ) :-
+    demo( X, verdaderiro ),
+    demoDisj( Y, Z ).
+
+demoDisj( [X|Y], verdadeiro ) :-
+    demo( X, Z ),
+    demoDisj( Y, verdadeiro ).
+
+demoDisj( [X|Y], desconhecido ) :-
+    demo( X, desconhecido ),
+    nao(demoDisj( Y, verdadeiro )).
+
+demoDisj( [X|Y], desconhecido ) :-
+    nao(demo( X, verdadeiro ),
+    demoDisj( Y, desconhecido )).
+
 
 
 % --------------------- PREDICADOS AUXILIARES ANTERIORES ----------------------
