@@ -18,6 +18,7 @@
 :- dynamic destacamento/3.
 :- dynamic transplante/2.
 :- dynamic excecao/1.
+:- dynamic nulo/1.
 
 % ----------------------------------------------------------
 %  Extensão do predicado utente: IdUt, Nome, Idade, Sexo, Morada -> {V, F}
@@ -308,9 +309,39 @@ comprimento( [X|T], R ) :- comprimento(T,N),
                            R is N+1.
 
 % evolucao: F -> {V,F,D}
-evolucao( F ) :- solucoes(I, +F::I, Li),
-                 testar(Li),
-                 assert(F).
+evolucao( F, Type ) :- 
+    Type == positivo,
+    solucoes(I, +F::I, Li),
+    testar(Li),
+    assert(F).
+
+evolucao( F, Type ) :-
+    Type == negativo,
+    solucoes( I, +(-F)::I, Li ),
+    testar(Li),
+    assert(-F).
+
+evolucao( utente( Id,No,Idd,Se,Cid ), Type ) :-
+    Type == incerto,
+    evolucao( utente( Id,No,Idd,Se,Cid ), positivo ),
+    assert( (excecao(utente( IdUt,Nome,Idade,Sexo,Cidade )) :- 
+                utente( IdUt,Nome,Idade,Sexo,Cid ) ) ).
+
+evolucao( [OPT1 | R], Type ) :-
+    Type == impreciso,
+    solucoes( I, +OPT1::I, Li ),
+    testar(Li),
+    assert( (excecao( OPT1 )) ),
+    evolucao( R,impreciso ).
+
+evolucao( [], impreciso ).
+
+evolucao( utente( Id,No,Idd,Se,Cid ), Type ) :-
+    Type == interdito,
+    evolucao( utente( Id,No,Idd,Se,Cid ),positivo ),
+    assert( (excecao(utente( IdUt,Nome,Idade,Sexo,Cidade )) :-
+                utente( IdUt,Nome,Idade,Sexo,Cid ) ) ),
+    assert( (nulo(Cid)) ). 
 
 % testar: L -> {V,F,D}
 testar([]).
