@@ -73,12 +73,12 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
 % Garantia da não inserção de exceções repetidas.
 +(excecao(utente(Id,No,I,Se,C))) :: ( solucoes( (excecao(utente(Id,No,I,Se,C))), excecao(utente(Id,No,I,Se,C)), S),
                                     comprimento(S,N),
-                                    N < 2).
+                                    N == 0).
 
 % Invariante de remoção que garante que não temos conhecimento Impreciso relativo à cidade do utente com menos de duas exceções
 -(excecao(utente( Id,No,I,Se,C ))) :: ( ( solucoes( excecao(utente(Id,No,I,Se,Cidade)), excecao(utente( Id,No,I,Se,Cidade )), S ),
                                           comprimento( S,N ),
-                                          N >= 2 );
+                                          N >= 3 );
                                         ( solucoes( ( Id ), utente( Id,No,I,Se,Cidade ), S ),
                                           comprimento( S,N ),
                                           N == 1 ) 
@@ -320,11 +320,8 @@ testar([I|Li]) :- I,
 
 % involucao: F -> {V,F}
 involucao( F ) :- solucoes(I, -F::I, Li),
-                  retract(F),
-                  testar(Li).
-involucao( F ) :- assert( F ),
-                  !,
-                  fail.
+                  testar(Li),
+                  retract(F).
 
 % Extensao do meta-predicado nao: Questao -> {V,F}
 
@@ -370,13 +367,13 @@ excecao(utente( 8, zeca, 37, masculino, 'Amadora' )).
 
 % Não se sabe se o utente Alfredo é de Felgueiras ou Lousada.
 
-excecao(utente( 7, alfredo, 22, masculino, 'felgueiras' )).
-excecao(utente( 7, alfredo, 22, masculino, 'lousada' )).
+excecao(utente( 9, alfredo, 22, masculino, 'felgueiras' )).
+excecao(utente( 9, alfredo, 22, masculino, 'lousada' )).
 
 % Não se sabe se a utente Alzira tem 23 ou 24 anos.
 
-excecao(utente( 8, alzira, 23, feminino, 'braga' )).
-excecao(utente( 8, alzira, 24, feminino, 'braga' )).
+excecao(utente( 10, alzira, 23, feminino, 'braga' )).
+excecao(utente( 10, alzira, 24, feminino, 'braga' )).
 
 % Não se sabe o preço da consulta que ocorreu no dia 29 de Abril de 2017, cujo utente tem o
 % IdUt 2 e o serviço prestado tem o IdServ 3, mas sabe-se que o preço foi
@@ -390,14 +387,14 @@ excecao(atoMedico('29-04-2017',2,3,C)) :- C>=3, C=<17.
 
 % Não se sabe nem é possível vir a saber a morada do utente António Costa.
 
-utente(10, 'Antonio Costa', 55, masculino, int0001).
+utente(11, 'Antonio Costa', 55, masculino, int0001).
 excecao( utente( Id,Nome,Idade,Sexo,Morada ) ) :- utente( Id,Nome,Idade,Sexo,int0001 ).
 nulo( int0001 ).
 
 % Não se sabe nem é possível vir a saber qual o serviço prestado ao utente cujo IdUt é 10
 % no dia 20 de Março de 2017 e cujo preço foi 3000€.
 
-atoMedico( '20-03-2017', 10, int0002, 3000 ).
+atoMedico( '20-03-2017', 11, int0002, 3000 ).
 excecao( atoMedico( Data,IdUt,IdServ,Custo ) ) :- atoMedico( Data,IdUt,int0002,Custo ).
 nulo( int0002 ).
 
