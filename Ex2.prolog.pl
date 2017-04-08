@@ -42,24 +42,12 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
 % Garantia de unicidade nos Ids dos utentes
 +utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), utente(IdUt,No,I,Se,M), S ),
                             comprimento( S,N ),
-                            N == 1 ).
-
-% Garante que não existe conhecimento negativo contraditório
-+utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), 
-                            -utente(IdUt,Nome,Idade,Sexo,Morada), S ),
-                            comprimento( S,N ),
                             N == 0 ).
-
-% Garantia de unicidade nos Ids dos utentes
-%+(-utente( IdUt,Nome,Idade,Sexo,Morada )) :: ( solucoes( (IdUt), -utente(IdUt,No,I,Se,M), S ),
-%                                             comprimento( S,N ),
-%                                             N == 1 ).
 
 % Garante que não existe conhecimento positivo contraditótio
 +(-utente( IdUt,Nome,Idade,Sexo,Morada )) :: ( solucoes( (IdUt), utente(IdUt,Nome,Idade,Sexo,Morada), S ),
                             comprimento( S,N ),
                             N == 0 ).
-
 
 
 % Invariante Referencial
@@ -118,12 +106,12 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 % Garantia de unicidade nos Ids dos Serviços
 +cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), cuidadoPrestado(IdServ,D,I,C), S ),
                             comprimento( S,N ),
-                            N == 1 ).
+                            N == 0 ).
 
 % Apenas é possível a inserção de um Serviço numa certa instituição uma vez
 +cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (Desc,Inst), cuidadoPrestado(V,Desc,Inst,C), S ),
                             comprimento( S, N),
-                            N == 1 ).
+                            N == 0 ).
 
 % Garantir que não existe conhecimento negativo contraditótio
 +cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), -cuidadoPrestado(IdServ,Desc,Inst,Cid), S ),
@@ -138,7 +126,7 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 % Garantia de unicidade nos Ids dos Serviços
 +(-cuidadoPrestado( IdServ,Desc,Inst,Cid )) :: ( solucoes( (IdServ), -cuidadoPrestado(IdServ,D,I,C), S ),
                             comprimento( S,N ),
-                            N == 1 ).
+                            N == 0 ).
 
 % Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
 +excecao( cuidadoPrestado(Id,D,I,C) ) :: ( nao( cuidadoPrestado( Id,D,I,C ) ) ).
@@ -189,12 +177,12 @@ atoMedico( '04-04-2017', 1, 3, 7 ).
                     comprimento( S2,N2 ),
                     N2 == 1 ).
 
-% Garantir que não existe conhecimento negativo contraditótio
-+atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt,IdServ), -atoMedico( Data,IdUt,IdServ,Custo ), S ),
+% Garantir que não existe conhecimento positivo repetido
++atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt,IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
                                         comprimento( S, N ),
                                         N == 0 ).
 
-% Garantir que não existe conhecimento negativo contraditótio
+% Garantir que não existe conhecimento positivo contraditótio
 +(-atoMedico( Data,IdUt,IdServ,Custo ) ) :: ( solucoes( (IdUt,IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
                                             comprimento( S, N ),
                                             N == 0 ).
@@ -274,11 +262,8 @@ comprimento( [X|T], R ) :- comprimento(T,N),
 
 % evolucao: F -> {V,F,D}
 evolucao( F ) :- solucoes(I, +F::I, Li),
-                 assert(F),
-                 testar(Li).
-evolucao( F ) :- retract( F ),
-                 !,
-                 fail.
+                 testar(Li),
+                 assert(F).
 
 % testar: L -> {V,F,D}
 testar([]).
