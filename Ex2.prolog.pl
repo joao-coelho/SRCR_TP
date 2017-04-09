@@ -612,7 +612,7 @@ involucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
     Type == interdito,
     Desconhecido == servico,
     retract( nulo(IdS) ),
-    involucao( atoMedico( D,IdU,IdS,C ), positivo ).
+    involucao( atoMedico( D,IdU,IdS,C ), incerto, servico ).
 
 % Extensao do meta-predicado nao: Questao -> {V,F}
 
@@ -702,3 +702,104 @@ nulo( int0002 ).
 
 
 % ----------------------------------------------------------------------
+
+% ------------------------- PREDICADOS EXTRA ---------------------------
+
+% Invariante Estrutural
++medico( IdMed,Nome,Idade,Sexo,IdServ ) :: ( solucoes( (IdMed), medico(IdMed,N,I,Se,Servico), S ),
+                                comprimento( S,N ),
+                                N == 0 ).
+
++medico( IdMed,Nome,Idade,Sexo,IdServ ) :: ( solucoes( (IdServ), cuidadoPrestado( IdServ,Desc,Inst,Cid ) , S ),
+                       comprimento( S,N ),
+                       N == 0 ).
+
+-medico( IdMed,Nome,Idade,Sexo,IdServ ) :: ( solucoes( (IdServ), medico( Id,N,I,S,IdServ ) , S ),
+                       comprimento( S,N ),
+                       N >= 2 ).
+
+% Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a cidade de utentes
+
++medico( Id,No,I,Se,IdServ ) :: (solucoes( (Id,No,I,Se,IdServ), (medico( Id,No,xpto,Se,IdServ ), nulo(xpto)), S ),
+                           comprimento( S,N ),
+                           N == 0).
+
++(-medico( Id,No,I,Se,IdServ )) :: (solucoes( (Id,No,I,Se,IdServ), (medico( Id,No,xpto,Se,IdServ ), nulo(xpto)), S ),
+                              comprimento( S,N ),
+                              N == 0).
+
+% Garantir que não se adicionam exceções relativas à idade a conhecimento perfeito positivo.
++excecao( medico(Id,No,I,Se,IdServ) ) :: ( nao( medico( Id,No,Idd,Se,IdServ ) ) ).
+
+% Garantia da não inserção de exceções repetidas.
++(excecao(medico(Id,No,I,Se,IdServ))) :: ( solucoes( (excecao(medico(Id,No,I,Se,IdServ))), excecao(medico(Id,No,I,Se,IdServ)), S),
+                                    comprimento(S,N),
+                                    N == 0).
+
+% Pressuposto do Mundo Fechado para o predicado medico
+-medico(Id,N,I,S,IdServ) :- 
+    nao(medico(Id,N,I,S,IdServ)),
+    nao(excecao(medico(Id,N,I,S,IdServ))).
+
+
+% Extensão do predicado medico: IdMed, Nome, Idade, Sexo, IdServ -> {V, F}
+
+% Conhecimento Positivo
+
+medico( 1, 'Antonio Lemos', 52, masculino, 3  ).
+medico( 2, 'Anibal Mota', 59, masculino, 1 ).
+medico( 3, 'Catarina Paiva', 35, feminino, 5 ).
+medico( 4, 'Jose Garcia', 39, masculino, 2 ).
+medico( 5, 'Carla Perez', 41, feminino, 6 ).
+
+% Conhecimento Negativo
+
+-medico( 39, 'Antonio Fernandes', 54, masculino, 4 ).
+-medico( 62, 'Jose Azevedo', 61, masculino, 2 ).
+-medico( 98, 'Cristina Lopes', 32, feminino, 5 ).
+
+% Conhecimento Incerto
+
+medico( 6, 'Abel Fonseca', inc0005, masculino, 6 ).
+excecao( medico( Id,N,I,S,IdServ ) ) :- medico( Id,N,inc0005,S,IdServ ).
+
+% Conhecimento Impreciso
+
+excecao(medico( 7, 'Paulo Guimaraes', 22, masculino, 5 )).
+excecao(medico( 7, 'Paulo Guimaraes', 23, masculino, 5 )).
+
+% Conhecimento Interdito
+
+utente(8, 'Rui Andrade', int0003, masculino, 2).
+excecao( medico( Id,Nome,Idade,Sexo,IdServ ) ) :- medico( Id,Nome,int0003,Sexo,IdServ ).
+nulo( int0003 ).
+
+% Evoluções e Involuções
+
+evolucao( medico( Id,No,Idd,Se,IdS ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == idade,
+    evolucao( medico( Id,No,Idd,Se,IdS), positivo ),
+    assert( (excecao(medico( IdMed,Nome,Idade,Sexo,IdServ )) :- 
+                medico( IdMed,Nome,Idd,Sexo,IdServ ) ) ).
+
+involucao( medico( Id,No,Idd,Se,IdS ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == idade,
+    involucao( medico( Id,No,Idd,Se,IdS), positivo ),
+    retract( (excecao(medico( IdMed,Nome,Idade,Sexo,IdServ )) :- 
+                medico( IdMed,Nome,Idd,Sexo,IdServ ) ) ).
+
+evolucao( medico( Id,No,Idd,Se,IdS ), Type, Desconhecido ) :-
+    Type == interdito,
+    Desconhecido == idade,
+    evolucao( medico( Id,No,Idd,Se,IdS), positivo ),
+    assert( (excecao(medico( IdMed,Nome,Idade,Sexo,IdServ )) :- 
+                medico( IdMed,Nome,Idd,Sexo,IdServ ) ) ),
+    assert( nulo(Idd) ).
+
+involucao( medico( Id,No,Idd,Se,IdS ), Type, Desconhecido ) :-
+    Type == interdito,
+    Desconhecido == idade,
+    retract( nulo(Idd) ),
+    involucao( medico( Id,No,Idd,Se,IdS), incerto, idade ).
