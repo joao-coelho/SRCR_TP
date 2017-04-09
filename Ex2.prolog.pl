@@ -371,6 +371,24 @@ evolucao( [OPT1 | R], Type ) :-
 
 evolucao( [], impreciso ).
 
+evolucao( utente( Id,No,Idd,Se,Cid ), Type, Impreciso, MenorValor, MaiorValor ) :-
+    Type == impreciso,
+    Impreciso == idade,
+    solucoes( I, +(excecao(utente( Id,No,Idd,Se,Cid )))::I, Li ),
+    testar(Li),
+    assert( (excecao( utente( Id,No,Idd,Se,Cid ) ) :-
+                Idd >= MenorValor,
+                Idd =< MaiorValor ) ).
+
+evolucao( atoMedico( D,IdUt,IdServ,C ), Type, Impreciso, MenorValor, MaiorValor ) :-
+    Type == impreciso,
+    Impreciso == custo,
+    solucoes( I, +(excecao(utente( Id,No,Idd,Se,Cid )))::I, Li ),
+    testar(Li),
+    assert( (excecao( atoMedico( D,IdUt,IdServ,C ) ) :-
+                C >= MenorValor,
+                C =< MaiorValor ) ).
+
 % permite cidade interdita
 evolucao( utente( Id,No,Idd,Se,Cid ), Type, Desconhecido ) :-
     Type == interdito,
@@ -471,26 +489,44 @@ involucao( [OPT1 | R], Type ) :-
 
 involucao( [], impreciso ).
 
+involucao( utente( Id,No,Idd,Se,Cid ), Type, Impreciso, MenorValor, MaiorValor ) :-
+    Type == impreciso,
+    Impreciso == idade,
+    solucoes( I, -(excecao(utente( Id,No,Idd,Se,Cid )))::I, Li ),
+    testar(Li),
+    retract( (excecao( utente( Id,No,Idd,Se,Cid ) ) :-
+                Idd >= MenorValor,
+                Idd =< MaiorValor ) ).
+
+involucao( atoMedico( D,IdUt,IdServ,C ), Type, Impreciso, MenorValor, MaiorValor ) :-
+    Type == impreciso,
+    Impreciso == custo,
+    solucoes( I, -(excecao(utente( Id,No,Idd,Se,Cid )))::I, Li ),
+    testar(Li),
+    retract( (excecao( atoMedico( D,IdUt,IdServ,C ) ) :-
+                C >= MenorValor,
+                C =< MaiorValor ) ).
+
 % permite remover conhecimento interdito sobre a cidade de utentes
 involucao( utente( Id,No,Idd,Se,Cid ), Type, Desconhecido ) :-
     Type == interdito,
     Desconhecido == cidade,
     retract( (nulo(Cid)) ),
-    involucao( utente( Id,No,Idd,Se,Cid ),incerto ).
+    involucao( utente( Id,No,Idd,Se,Cid ),incerto,cidade ).
 
 % permite remover instituição interdita 
 involucao( cuidadoPrestado( Id,Desc,Inst,Cid ), Type, Desconhecido ) :-
-    Type == incerto,
+    Type == interdito,
     Desconhecido == instituicao,
     retract( nulo(Inst) ),
-    involucao( cuidadoPrestado( Id,Desc,Inst,Cid ),incerto ).
+    involucao( cuidadoPrestado( Id,Desc,Inst,Cid ),incerto,instituicao ).
 
 % permite remover custos interditos
 involucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
     Type == interdito,
     Desconhecido == custo, 
     retract( nulo(C) ),
-    involucao( atoMedico( D,IdU,IdS,C ), incerto ).
+    involucao( atoMedico( D,IdU,IdS,C ), incerto,custo ).
 
 % permite remover serviços interditos
 involucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
