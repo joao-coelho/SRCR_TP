@@ -58,18 +58,17 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
                             comprimento( S,N ),
                             N == 0 ).
 
-% REPLICAR PARA OS RESTANTES PREDICADOS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-% Invariante que permite a inserção de utentes se não houver exceção relativa à cidade
-+utente( IdUt,Nome,Idade,Sexo,Cidade ) :: ( solucoes( (excecao(utente(IdUt,Nome,Idade,Sexo,Cid))),
-													excecao(utente(IdUt,Nome,Idade,Sexo,Cid)), S ),
-                            				comprimento( S,N ),
-                            				N == 0 ).
+% Invariante que permite a inserção de conhecimento impreciso se não houver conhecimento incerto relativo à idade
++utente( IdUt,Nome,Idade,Sexo,Cidade ) :: ( solucoes( (excecao(utente(IdUt,Nome,Idd,Sexo,Cidade))),
+                          excecao(utente(IdUt,Nome,Idd,Sexo,Cidade)), S ),
+                                    comprimento( S,N ),
+                                    N == 0 ).
 
 % Invariante que permite a inserção de conhecimento impreciso se não houver conhecimento incerto relativo à cidade
 +utente( IdUt,Nome,Idade,Sexo,Cidade ) :: ( solucoes( (excecao(utente(IdUt,Nome,Idade,Sexo,Cid))),
-													excecao(utente(IdUt,Nome,Idade,Sexo,Cid)), S ),
-                            				comprimento( S,N ),
-                            				N == 0 ).
+                          excecao(utente(IdUt,Nome,Idade,Sexo,Cid)), S ),
+                                    comprimento( S,N ),
+                                    N == 0 ).
 
 % Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a cidade de utentes
 
@@ -80,6 +79,9 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
 +(-utente( Id,No,I,Se,C )) :: (solucoes( (Id,No,I,Se,C), (utente( Id,No,I,Se,xpto ), nulo(xpto)), S ),
                               comprimento( S,N ),
                               N == 0).
+
+% Garantir que não se adicionam exceções relativas à cidade a conhecimento perfeito positivo.
++excecao( utente(Id,No,I,Se,C) ) :: ( nao( utente( Id,No,Idd,Se,C ) ) ).
 
 % Garantir que não se adicionam exceções relativas à cidade a conhecimento perfeito positivo.
 +excecao( utente(Id,No,I,Se,C) ) :: ( nao( utente( Id,No,I,Se,Cidade ) ) ).
@@ -122,6 +124,12 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
 +cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (IdServ), -cuidadoPrestado(IdServ,Desc,Inst,Cid), S ),
                             comprimento( S, N ),
                             N == 0 ).
+
+% Invariante que permite a inserção de conhecimento impreciso se não houver conhecimento incerto relativo à instituição
++cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: ( solucoes( (excecao(cuidadoPrestado(IdServ,Desc,I,Cid))),
+                          excecao(cuidadoPrestado(IdServ,Desc,I,Cid)), S ),
+                                    comprimento( S,N ),
+                                    N == 0 ).
 
 % Garantir que não existe conhecimento positivo contraditótio
 +(-cuidadoPrestado( IdServ,Desc,Inst,Cid )) :: ( solucoes( (IdServ), cuidadoPrestado(IdServ,Desc,Inst,Cid), S ),
@@ -186,6 +194,18 @@ atoMedico( '04-04-2017', 1, 3, 7 ).
 +atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (IdUt,IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
                                         comprimento( S, N ),
                                         N == 0 ).
+
+% Invariante que permite a inserção de conhecimento impreciso se não houver conhecimento incerto relativo ao custo
++atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (excecao(atoMedico( Data,IdUt,IdServ,C ))),
+                          excecao(atoMedico( Data,IdUt,IdServ,C )), S ),
+                                    comprimento( S,N ),
+                                    N == 0 ).
+
+% Invariante que permite a inserção de conhecimento impreciso se não houver conhecimento incerto relativo ao serviço
++atoMedico( Data,IdUt,IdServ,Custo ) :: ( solucoes( (excecao(atoMedico( Data,IdUt,IdServico,Custo ))),
+                          excecao(atoMedico( Data,IdUt,IdServico,Custo )), S ),
+                                    comprimento( S,N ),
+                                    N == 0 ).
 
 % Garantir que não existe conhecimento positivo contraditótio
 +(-atoMedico( Data,IdUt,IdServ,Custo ) ) :: ( solucoes( (IdUt,IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
@@ -330,6 +350,14 @@ evolucao( F, Type ) :-
     testar(Li),
     assert(-F).
 
+%permite idade desconhecida
+evolucao( utente( Id,No,Idd,Se,Cid ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == idade,
+    evolucao( utente( Id,No,Idd,Se,Cid ), positivo ),
+    assert( (excecao(utente( IdUt,Nome,Idade,Sexo,Cidade )) :- 
+                utente( IdUt,Nome,Idd,Sexo,Cidade ) ) ).
+
 % permite cidade desconhecida
 evolucao( utente( Id,No,Idd,Se,Cid ), Type, Desconhecido ) :-
     Type == incerto,
@@ -437,25 +465,33 @@ involucao( F ) :- solucoes(I, -F::I, Li),
 
 % involucao: F, Type -> {V,F}
 involucao( F,Type ) :- 
-		Type == positivo,
-		solucoes(I, -F::I, Li),
+    Type == positivo,
+    solucoes(I, -F::I, Li),
         testar(Li),
         retract(F).
 
 involucao( F,Type ) :- 
-		Type == negativo,
-		solucoes(I, -(-F)::I, Li),
+    Type == negativo,
+    solucoes(I, -(-F)::I, Li),
         testar(Li),
         retract(-F).
 
+% permite remover conhecimento incerto sobre idade de utentes
+involucao( utente( Id,No,Idd,Se,Cid ),Type,Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == idade,
+    involucao( utente( Id,No,Idd,Se,Cid ), positivo ),
+    retract( (excecao(utente( IdUt,Nome,Idade,Sexo,Cidade )) :- 
+                utente( IdUt,Nome,Idd,Sexo,Cidade )) ).
+
 % permite remover conhecimento incerto sobre cidade de utentes
 involucao( utente( Id,No,Idd,Se,Cid ),Type,Desconhecido ) :-
-		Type == incerto,
-		Desconhecido == cidade,
-		involucao( utente( Id,No,Idd,Se,Cid ), positivo ),
-		retract( (excecao(utente( IdUt,Nome,Idade,Sexo,Cidade )) :- 
+    Type == incerto,
+    Desconhecido == cidade,
+    involucao( utente( Id,No,Idd,Se,Cid ), positivo ),
+    retract( (excecao(utente( IdUt,Nome,Idade,Sexo,Cidade )) :- 
                 utente( IdUt,Nome,Idade,Sexo,Cid )) ).
-		
+    
 % permite instituição desconhecida 
 involucao( cuidadoPrestado( Id,Desc,Inst,Cid ), Type, Desconhecido ) :-
     Type == incerto,
