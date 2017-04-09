@@ -635,10 +635,20 @@ nao( Questao ).
 utente( 6, manuel, inc0001, masculino, 'Lisboa' ).
 excecao( utente( Id,N,I,S,C ) ) :- utente( Id,N,inc0001,S,C ).
 
+% --- Não se sabe a cidade de onde a utente Paula é proveniente.
+
+utente( 7, paula, 47, feminino, inc0002 ).
+excecao( utente( Id,N,I,S,C ) ) :- utente( Id,N,I,S,inc0002 ).
+
+% --- Não se sabe a instituição que disponibiliza o serviço de Neurocirurgia em Évora.
+
+cuidadoPrestado( 7, 'Neurocirurgia', inc0003, 'Evora' ).
+excecao( cuidadoPrestado( Id,Desc,Inst,Cid ) ) :- cuidadoPrestado( Id,Desc,inc0003,Cid ).
+
 % --- Não se sabe a data em que o utente cujo IdUt é 3 foi submetido ao tratamento cujo IdServ é 5.
 
-atoMedico( inc0002, 3, 5, 10 ).
-excecao( atoMedico( D,IdUt,IdServ,C ) ) :- atoMedico( inc0002,IdUt,IdServ,C ).
+atoMedico( inc0004, 3, 5, 10 ).
+excecao( atoMedico( D,IdUt,IdServ,C ) ) :- atoMedico( inc0004,IdUt,IdServ,C ).
 
 
 
@@ -646,25 +656,25 @@ excecao( atoMedico( D,IdUt,IdServ,C ) ) :- atoMedico( inc0002,IdUt,IdServ,C ).
 
 % Não se sabe se o/a utente Dolores é do sexo masculino ou feminino.
 
-excecao(utente( 7, dolores, 34, masculino, 'Amadora' )).
-excecao(utente( 7, dolores, 34, feminino, 'Amadora' )).
+excecao(utente( 8, dolores, 34, masculino, 'Amadora' )).
+excecao(utente( 8, dolores, 34, feminino, 'Amadora' )).
 
 % Não se sabe se o utente Zeca tem 36 ou 37 anos, nem se é da Amadora ou de Sintra.
 
-excecao(utente( 8, zeca, 36, masculino, 'Sintra' )).
-excecao(utente( 8, zeca, 37, masculino, 'Sintra' )).
-excecao(utente( 8, zeca, 36, masculino, 'Amadora' )).
-excecao(utente( 8, zeca, 37, masculino, 'Amadora' )).
+excecao(utente( 9, zeca, 36, masculino, 'Sintra' )).
+excecao(utente( 9, zeca, 37, masculino, 'Sintra' )).
+excecao(utente( 9, zeca, 36, masculino, 'Amadora' )).
+excecao(utente( 9, zeca, 37, masculino, 'Amadora' )).
 
 % Não se sabe se o utente Alfredo é de Felgueiras ou Lousada.
 
-excecao(utente( 9, alfredo, 22, masculino, 'felgueiras' )).
-excecao(utente( 9, alfredo, 22, masculino, 'lousada' )).
+excecao(utente( 10, alfredo, 22, masculino, 'felgueiras' )).
+excecao(utente( 10, alfredo, 22, masculino, 'lousada' )).
 
 % Não se sabe se a utente Alzira tem 23 ou 24 anos.
 
-excecao(utente( 10, alzira, 23, feminino, 'braga' )).
-excecao(utente( 10, alzira, 24, feminino, 'braga' )).
+excecao(utente( 11, alzira, 23, feminino, 'braga' )).
+excecao(utente( 11, alzira, 24, feminino, 'braga' )).
 
 % Não se sabe o preço da consulta que ocorreu no dia 29 de Abril de 2017, cujo utente tem o
 % IdUt 2 e o serviço prestado tem o IdServ 3, mas sabe-se que o preço foi
@@ -678,14 +688,14 @@ excecao(atoMedico('29-04-2017',2,3,C)) :- C>=3, C=<17.
 
 % Não se sabe nem é possível vir a saber a morada do utente António Costa.
 
-utente(11, 'Antonio Costa', 55, masculino, int0001).
+utente(12, 'Antonio Costa', 55, masculino, int0001).
 excecao( utente( Id,Nome,Idade,Sexo,Morada ) ) :- utente( Id,Nome,Idade,Sexo,int0001 ).
 nulo( int0001 ).
 
-% Não se sabe nem é possível vir a saber qual o serviço prestado ao utente cujo IdUt é 10
+% Não se sabe nem é possível vir a saber qual o serviço prestado ao utente cujo IdUt é 12
 % no dia 20 de Março de 2017 e cujo preço foi 3000€.
 
-atoMedico( '20-03-2017', 11, int0002, 3000 ).
+atoMedico( '20-03-2017', 12, int0002, 3000 ).
 excecao( atoMedico( Data,IdUt,IdServ,Custo ) ) :- atoMedico( Data,IdUt,int0002,Custo ).
 nulo( int0002 ).
 
