@@ -41,24 +41,37 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
 
 % Invariante Estrutural (Alínea 1) e 9))
 % Garantia de unicidade nos Ids dos utentes
-+utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), utente(IdUt,No,I,Se,M), S ),
++utente( IdUt,Nome,Idade,Sexo,Cidade ) :: ( solucoes( (IdUt), utente(IdUt,No,I,Se,Cid), S ),
                             comprimento( S,N ),
                             N == 0 ).
 
 % Garante que não existe conhecimento positivo contraditótio
-+(-utente( IdUt,Nome,Idade,Sexo,Morada )) :: ( solucoes( (IdUt), utente(IdUt,Nome,Idade,Sexo,Morada), S ),
++(-utente( IdUt,Nome,Idade,Sexo,Cidade )) :: ( solucoes( (IdUt), utente(IdUt,Nome,Idade,Sexo,Cidade), S ),
                             comprimento( S,N ),
                             N == 0 ).
 
 
 % Invariante Referencial
 % Não é possível a remoção de utentes se houver algum Ato Médico para este
--utente( IdUt,Nome,Idade,Sexo,Morada ) :: ( solucoes( (IdUt), 
+-utente( IdUt,Nome,Idade,Sexo,Cidade ) :: ( solucoes( (IdUt), 
                             atoMedico( Data,IdUt,IdServ,Custo ), S ),
                             comprimento( S,N ),
                             N == 0 ).
 
-% Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a morada de utentes
+% REPLICAR PARA OS RESTANTES PREDICADOS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% Invariante que permite a inserção de utentes se não houver exceção relativa à cidade
++utente( IdUt,Nome,Idade,Sexo,Cidade ) :: ( solucoes( (excecao(utente(IdUt,Nome,Idade,Sexo,Cid))),
+													excecao(utente(IdUt,Nome,Idade,Sexo,Cid)), S ),
+                            				comprimento( S,N ),
+                            				N == 0 ).
+
+% Invariante que permite a inserção de conhecimento impreciso se não houver conhecimento incerto relativo à cidade
++utente( IdUt,Nome,Idade,Sexo,Cidade ) :: ( solucoes( (excecao(utente(IdUt,Nome,Idade,Sexo,Cid))),
+													excecao(utente(IdUt,Nome,Idade,Sexo,Cid)), S ),
+                            				comprimento( S,N ),
+                            				N == 0 ).
+
+% Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a cidade de utentes
 
 +utente( Id,No,I,Se,C ) :: (solucoes( (Id,No,I,Se,C), (utente( Id,No,I,Se,xpto ), nulo(xpto)), S ),
                            comprimento( S,N ),
@@ -68,22 +81,13 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
                               comprimento( S,N ),
                               N == 0).
 
-% Garantir que não se adicionam exceções a conhecimento perfeito positivo.
-+excecao( utente(Id,No,I,Se,M) ) :: ( nao( utente( Id,No,I,Se,M ) ) ).
+% Garantir que não se adicionam exceções relativas à cidade a conhecimento perfeito positivo.
++excecao( utente(Id,No,I,Se,C) ) :: ( nao( utente( Id,No,I,Se,Cidade ) ) ).
  
 % Garantia da não inserção de exceções repetidas.
 +(excecao(utente(Id,No,I,Se,C))) :: ( solucoes( (excecao(utente(Id,No,I,Se,C))), excecao(utente(Id,No,I,Se,C)), S),
                                     comprimento(S,N),
                                     N == 0).
-
-% Invariante de remoção que garante que não temos conhecimento Impreciso relativo à cidade do utente com menos de duas exceções
--(excecao(utente( Id,No,I,Se,C ))) :: ( ( solucoes( excecao(utente(Id,No,I,Se,Cidade)), excecao(utente( Id,No,I,Se,Cidade )), S ),
-                                          comprimento( S,N ),
-                                          N >= 3 );
-                                        ( solucoes( ( Id ), utente( Id,No,I,Se,Cidade ), S ),
-                                          comprimento( S,N ),
-                                          N == 1 ) 
-                                      ).
 
 % ----------------------------------------------------------
 %  Extensão do predicado cuidadoPrestado: IdServ, Descrição, Instituição, Cidade -> {V, F}
@@ -274,7 +278,7 @@ demoDisj( [X|Y], falso ) :-
     demoDisj(Y, falso ).
  
 demoDisj( [X|Y], verdadeiro ) :-
-    demo( X, verdaderiro ),
+    demo( X, verdadeiro ),
     demoDisj( Y, Z ).
 
 demoDisj( [X|Y], verdadeiro ) :-
@@ -307,8 +311,13 @@ construir(S, S).
 comprimento( [], 0 ).
 comprimento( [X|T], R ) :- comprimento(T,N),
                            R is N+1.
+% evolucao: F -> {V,F}
+evolucao( F ) :- 
+    solucoes(I, +F::I, Li),
+    testar(Li),
+    assert(F).
 
-% evolucao: F -> {V,F,D}
+% evolucao: F, Type -> {V,F}
 evolucao( F, Type ) :- 
     Type == positivo,
     solucoes(I, +F::I, Li),
@@ -321,38 +330,174 @@ evolucao( F, Type ) :-
     testar(Li),
     assert(-F).
 
-evolucao( utente( Id,No,Idd,Se,Cid ), Type ) :-
+% permite cidade desconhecida
+evolucao( utente( Id,No,Idd,Se,Cid ), Type, Desconhecido ) :-
     Type == incerto,
+    Desconhecido == cidade,
     evolucao( utente( Id,No,Idd,Se,Cid ), positivo ),
     assert( (excecao(utente( IdUt,Nome,Idade,Sexo,Cidade )) :- 
                 utente( IdUt,Nome,Idade,Sexo,Cid ) ) ).
 
+% permite instituição desconhecida 
+evolucao( cuidadoPrestado( Id,Desc,Inst,Cid ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == instituicao,
+    evolucao( cuidadoPrestado( Id,Desc,Inst,Cid ), positivo ),
+    assert( (excecao(cuidadoPrestado( IdServ,Descricao,Instituicao,Cidade )) :- 
+                cuidadoPrestado( IdServ,Descricao,Inst,Cidade ) ) ).
+
+% permite custos desconhecidos
+evolucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == custo,
+    evolucao( atoMedico( D,IdU,IdS,C ), positivo ),
+    assert( (excecao(atoMedico( Data,IdUt,IdServ,Custo )) :- 
+                atoMedico( Data,IdUt,IdServ,C ) ) ).
+
+% permite serviços desconhecidos
+evolucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == servico,
+    evolucao( atoMedico( D,IdU,IdS,C ), positivo ),
+    assert( (excecao(atoMedico( Data,IdUt,IdServ,Custo )) :- 
+                atoMedico( Data,IdUt,IdS,Custo ) ) ).
+
 evolucao( [OPT1 | R], Type ) :-
     Type == impreciso,
-    solucoes( I, +OPT1::I, Li ),
+    solucoes( I, +(excecao(OPT1))::I, Li ),
     testar(Li),
     assert( (excecao( OPT1 )) ),
     evolucao( R,impreciso ).
 
 evolucao( [], impreciso ).
 
-evolucao( utente( Id,No,Idd,Se,Cid ), Type ) :-
+% permite cidade interdita
+evolucao( utente( Id,No,Idd,Se,Cid ), Type, Desconhecido ) :-
     Type == interdito,
+    Desconhecido == cidade,
     evolucao( utente( Id,No,Idd,Se,Cid ),positivo ),
     assert( (excecao(utente( IdUt,Nome,Idade,Sexo,Cidade )) :-
                 utente( IdUt,Nome,Idade,Sexo,Cid ) ) ),
     assert( (nulo(Cid)) ). 
 
-% testar: L -> {V,F,D}
+% permite instituição interdita 
+evolucao( cuidadoPrestado( Id,Desc,Inst,Cid ), Type, Desconhecido ) :-
+    Type == interdito,
+    Desconhecido == instituicao,
+    evolucao( cuidadoPrestado( Id,Desc,Inst,Cid ), positivo ),
+    assert( (excecao(cuidadoPrestado( IdServ,Descricao,Instituicao,Cidade )) :- 
+                cuidadoPrestado( IdServ,Descricao,Inst,Cidade ) ) ), 
+    assert( nulo(Inst) ).
+
+% permite custos interditos
+evolucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
+    Type == interdito,
+    Desconhecido == custo,
+    evolucao( atoMedico( D,IdU,IdS,C ), positivo ),
+    assert( (excecao(atoMedico( Data,IdUt,IdServ,Custo )) :- 
+                atoMedico( Data,IdUt,IdServ,C ) ) ), 
+    assert( nulo(C) ).
+
+% permite serviços interditos
+evolucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
+    Type == interdito,
+    Desconhecido == servico,
+    evolucao( atoMedico( D,IdU,IdS,C ), positivo ),
+    assert( (excecao(atoMedico( Data,IdUt,IdServ,Custo )) :- 
+                atoMedico( Data,IdUt,IdS,Custo ) ) ),
+    assert( nulo(IdS) ).
+
+% testar: L -> {V,F}
 testar([]).
 testar([I|Li]) :- I,
                   testar(Li).
-
 
 % involucao: F -> {V,F}
 involucao( F ) :- solucoes(I, -F::I, Li),
                   testar(Li),
                   retract(F).
+
+% involucao: F, Type -> {V,F}
+involucao( F,Type ) :- 
+		Type == positivo,
+		solucoes(I, -F::I, Li),
+        testar(Li),
+        retract(F).
+
+involucao( F,Type ) :- 
+		Type == negativo,
+		solucoes(I, -(-F)::I, Li),
+        testar(Li),
+        retract(-F).
+
+% permite remover conhecimento incerto sobre cidade de utentes
+involucao( utente( Id,No,Idd,Se,Cid ),Type,Desconhecido ) :-
+		Type == incerto,
+		Desconhecido == cidade,
+		involucao( utente( Id,No,Idd,Se,Cid ), positivo ),
+		retract( (excecao(utente( IdUt,Nome,Idade,Sexo,Cidade )) :- 
+                utente( IdUt,Nome,Idade,Sexo,Cid )) ).
+		
+% permite instituição desconhecida 
+involucao( cuidadoPrestado( Id,Desc,Inst,Cid ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == instituicao,
+    involucao( cuidadoPrestado( Id,Desc,Inst,Cid ), positivo ),
+    retract( (excecao(cuidadoPrestado( IdServ,Descricao,Instituicao,Cidade )) :- 
+                cuidadoPrestado( IdServ,Descricao,Inst,Cidade ) ) ).
+
+% permite custos desconhecidos
+involucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == custo,
+    involucao( atoMedico( D,IdU,IdS,C ), positivo ),
+    retract( (excecao(atoMedico( Data,IdUt,IdServ,Custo )) :- 
+                atoMedico( Data,IdUt,IdServ,C ) ) ).
+
+% permite serviços desconhecidos
+involucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == servico,
+    involucao( atoMedico( D,IdU,IdS,C ), positivo ),
+    retract( (excecao(atoMedico( Data,IdUt,IdServ,Custo )) :- 
+                atoMedico( Data,IdUt,IdS,Custo ) ) ).
+
+involucao( [OPT1 | R], Type ) :-
+    Type == impreciso,
+    solucoes( I, -OPT1::I, Li ),
+    testar(Li),
+    retract( (excecao( OPT1 )) ),
+    involucao( R,impreciso ).
+
+involucao( [], impreciso ).
+
+% permite remover conhecimento interdito sobre a cidade de utentes
+involucao( utente( Id,No,Idd,Se,Cid ), Type, Desconhecido ) :-
+    Type == interdito,
+    Desconhecido == cidade,
+    retract( (nulo(Cid)) ),
+    involucao( utente( Id,No,Idd,Se,Cid ),incerto ).
+
+% permite remover instituição interdita 
+involucao( cuidadoPrestado( Id,Desc,Inst,Cid ), Type, Desconhecido ) :-
+    Type == incerto,
+    Desconhecido == instituicao,
+    retract( nulo(Inst) ),
+    involucao( cuidadoPrestado( Id,Desc,Inst,Cid ),incerto ).
+
+% permite remover custos interditos
+involucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
+    Type == interdito,
+    Desconhecido == custo, 
+    retract( nulo(C) ),
+    involucao( atoMedico( D,IdU,IdS,C ), incerto ).
+
+% permite remover serviços interditos
+involucao( atoMedico( D,IdU,IdS,C ), Type, Desconhecido ) :-
+    Type == interdito,
+    Desconhecido == servico,
+    retract( nulo(IdS) ),
+    involucao( atoMedico( D,IdU,IdS,C ), positivo ).
 
 % Extensao do meta-predicado nao: Questao -> {V,F}
 
