@@ -719,7 +719,7 @@ nulo( int0002 ).
                        N >= 2 ).
 
 % Garantir que não existe conhecimento positivo contraditótio
-+(-medico( IdMed,Nome,Idade,Sexo,IdServ )) :: ( solucoes( (IdServ), medico(IdMed,Nome,Idade,Sexo,IdServ), S ),
++(-medico( IdMed,Nome,Idade,Sexo,IdServ )) :: ( solucoes( (IdMed), medico(IdMed,Nome,Idade,Sexo,IdServ), S ),
                             comprimento( S, N ),
                             N == 0 ).
 
