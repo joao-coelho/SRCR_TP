@@ -70,6 +70,16 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
                                     comprimento( S,N ),
                                     N == 0 ).
 
+% Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a idade de utentes
+
++utente( Id,No,I,Se,C ) :: (solucoes( (Id,No,I,Se,C), (utente( Id,No,xpto,Se,C ), nulo(xpto)), S ),
+                           comprimento( S,N ),
+                           N == 0).
+
++(-utente( Id,No,I,Se,C )) :: (solucoes( (Id,No,I,Se,C), (utente( Id,No,xpto,Se,C ), nulo(xpto)), S ),
+                              comprimento( S,N ),
+                              N == 0).
+
 % Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a cidade de utentes
 
 +utente( Id,No,I,Se,C ) :: (solucoes( (Id,No,I,Se,C), (utente( Id,No,I,Se,xpto ), nulo(xpto)), S ),
@@ -80,7 +90,7 @@ utente( 5, pedro, 20, masculino, 'Felgueiras' ).
                               comprimento( S,N ),
                               N == 0).
 
-% Garantir que não se adicionam exceções relativas à cidade a conhecimento perfeito positivo.
+% Garantir que não se adicionam exceções relativas à idade a conhecimento perfeito positivo.
 +excecao( utente(Id,No,I,Se,C) ) :: ( nao( utente( Id,No,Idd,Se,C ) ) ).
 
 % Garantir que não se adicionam exceções relativas à cidade a conhecimento perfeito positivo.
@@ -131,6 +141,16 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
                                     comprimento( S,N ),
                                     N == 0 ).
 
+% Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a instituição
+
++cuidadoPrestado( IdServ,Desc,Inst,Cid ) :: (solucoes( (IdServ,Desc,Inst,Cid), (cuidadoPrestado( IdServ,Desc,xpto,Cid ), nulo(xpto)), S ),
+                           comprimento( S,N ),
+                           N == 0).
+
++(-cuidadoPrestado( IdServ,Desc,Inst,Cid )) :: (solucoes( (IdServ,Desc,Inst,Cid), (cuidadoPrestado( IdServ,Desc,xpto,Cid ), nulo(xpto)), S ),
+                              comprimento( S,N ),
+                              N == 0).
+
 % Garantir que não existe conhecimento positivo contraditótio
 +(-cuidadoPrestado( IdServ,Desc,Inst,Cid )) :: ( solucoes( (IdServ), cuidadoPrestado(IdServ,Desc,Inst,Cid), S ),
                             comprimento( S, N ),
@@ -141,8 +161,8 @@ cuidadoPrestado( 6, 'Obstetricia', 'Hospital de Braga', 'Braga').
                             comprimento( S,N ),
                             N == 0 ).
 
-% Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
-+excecao( cuidadoPrestado(Id,D,I,C) ) :: ( nao( cuidadoPrestado( Id,D,I,C ) ) ).
+% Garantir que nao se adicionam excecoes a conhecimento perfeito positivo
++excecao( cuidadoPrestado(Id,D,I,C) ) :: ( nao( cuidadoPrestado( Id,D,Inst,C ) ) ).
 
 
 % Garantia da não inserção de exceções repetidas.
@@ -207,13 +227,36 @@ atoMedico( '04-04-2017', 1, 3, 7 ).
                                     comprimento( S,N ),
                                     N == 0 ).
 
+% Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre o serviço
+
++atoMedico( Data,IdUt,IdServ,C ) :: (solucoes( (Data,IdUt,IdServ,C), (atoMedico( Data,IdUt,xpto,C ), nulo(xpto)), S ),
+                           comprimento( S,N ),
+                           N == 0).
+
++(-atoMedico( Data,IdUt,IdServ,C )) :: (solucoes( (Data,IdUt,IdServ,C), (atoMedico( Data,IdUt,xpto,C ), nulo(xpto)), S ),
+                              comprimento( S,N ),
+                              N == 0).
+
+% Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre o custo
+
++atoMedico( Data,IdUt,IdServ,C ) :: (solucoes( (Data,IdUt,IdServ,C), (atoMedico( Data,IdUt,IdServ,xpto ), nulo(xpto)), S ),
+                           comprimento( S,N ),
+                           N == 0).
+
++(-atoMedico( Data,IdUt,IdServ,C )) :: (solucoes( (Data,IdUt,IdServ,C), (atoMedico( Data,IdUt,IdServ,xpto ), nulo(xpto)), S ),
+                              comprimento( S,N ),
+                              N == 0).
+
 % Garantir que não existe conhecimento positivo contraditótio
 +(-atoMedico( Data,IdUt,IdServ,Custo ) ) :: ( solucoes( (IdUt,IdServ), atoMedico( Data,IdUt,IdServ,Custo ), S ),
                                             comprimento( S, N ),
                                             N == 0 ).
 
 % Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
-+excecao( atoMedico( D,I,Is,C ) ) :: nao( atoMedico( D,I,Is,C ) ).
++excecao( atoMedico( D,IdUt,IdServ,C ) ) :: nao( atoMedico( D,IdUt,IdS,C ) ).
+
+% Garantir que nao se adicionaa excecoes a conhecimento perfeito positivo
++excecao( atoMedico( D,IdUt,IdServ,C ) ) :: nao( atoMedico( D,IdUt,IdServ,Custo ) ).
 
 
 % Garantia da não inserção de exceções repetidas.
