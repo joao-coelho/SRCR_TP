@@ -718,6 +718,11 @@ nulo( int0002 ).
                        comprimento( S,N ),
                        N >= 2 ).
 
+% Garantir que não existe conhecimento positivo contraditótio
++(-medico( IdMed,Nome,Idade,Sexo,IdServ )) :: ( solucoes( (IdServ), medico(IdMed,Nome,Idade,Sexo,IdServ), S ),
+                            comprimento( S, N ),
+                            N == 0 ).
+
 % Invariante que impede a inserção de conhecimento positivo ou negativo acerca de conhecimento interdito sobre a cidade de utentes
 
 +medico( Id,No,I,Se,IdServ ) :: (solucoes( (Id,No,I,Se,IdServ), (medico( Id,No,xpto,Se,IdServ ), nulo(xpto)), S ),
