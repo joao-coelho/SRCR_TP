@@ -6,6 +6,7 @@ library("readr")
 # ---- Ler ficheiro com dados para treinar rede ----
 
 # dataset para identificar os 7 níveis de exaustão
+# NOTA: "path" representa o caminho no computador pessoal até ao ficheiro a ler
 exaustao <- read.csv("path\\exaustao.csv", header = TRUE, sep = ",", dec = ".", stringsAsFactors = FALSE)
 exaustao7N <- exaustao[sample(nrow(exaustao)), ]
 
@@ -44,7 +45,7 @@ neuralTrain <- function(trainset, hidden, testset, algorithm = "rprop+", thresho
 																	Performance.DDCMean + Performance.ADMSLMean) {
 
 	if (algorithm == "backprop") {
-		nNet <- neuralnet(formula, trainset, algorithm = algorithm, learningrate = 0.1, hidden = hidden, threshold = threshold, linear.output = FALSE)
+		nNet <- neuralnet(formula, trainset, algorithm = algorithm, learningrate = 0.1, hidden = hidden, threshold = threshold, lifesign = "full", linear.output = FALSE)
 	}
 	else {
 		nNet <- neuralnet(formula, trainset, algorithm = algorithm, hidden = hidden, threshold = threshold, lifesign = "full")
